@@ -120,7 +120,7 @@
         <li class="mobile-menu-item">
           
           
-            Home
+            首页
           
         </li>
       </a>
@@ -129,7 +129,7 @@
         <li class="mobile-menu-item">
           
           
-            Archives
+            归档
           
         </li>
       </a>
@@ -138,7 +138,7 @@
         <li class="mobile-menu-item">
           
           
-            Tags
+            标签
           
         </li>
       </a>
@@ -147,7 +147,7 @@
         <li class="mobile-menu-item">
           
           
-            Categories
+            分类
           
         </li>
       </a>
@@ -156,7 +156,7 @@
         <li class="mobile-menu-item">
           
           
-            About
+            关于
           
         </li>
       </a>
@@ -177,7 +177,7 @@
           <a class="menu-item-link" href="/">
             
             
-              Home
+              首页
             
           </a>
         </li>
@@ -186,7 +186,7 @@
           <a class="menu-item-link" href="/archives/">
             
             
-              Archives
+              归档
             
           </a>
         </li>
@@ -195,7 +195,7 @@
           <a class="menu-item-link" href="/tags">
             
             
-              Tags
+              标签
             
           </a>
         </li>
@@ -204,7 +204,7 @@
           <a class="menu-item-link" href="/categories">
             
             
-              Categories
+              分类
             
           </a>
         </li>
@@ -213,7 +213,7 @@
           <a class="menu-item-link" href="/about">
             
             
-              About
+              关于
             
           </a>
         </li>
@@ -244,7 +244,7 @@
         
           <div class="post-category">
             
-              <a href="/categories/源码/">源码</a>
+              <a href="/categories/源码-Android/">源码 Android</a>
             
           </div>
         
@@ -261,9 +261,9 @@
     
     
   <div class="post-toc" id="post-toc">
-    <h2 class="post-toc-title">Contents</h2>
+    <h2 class="post-toc-title">文章目录</h2>
     <div class="post-toc-content">
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本使用"><span class="toc-text">基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本订阅"><span class="toc-text">基本订阅</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#源码分析"><span class="toc-text">源码分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#subscribe方法"><span class="toc-text">subscribe方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本使用"><span class="toc-text">基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本订阅"><span class="toc-text">基本订阅</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#subscribe方法"><span class="toc-text">subscribe方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
     </div>
   </div>
 
@@ -287,8 +287,8 @@
 <li>在Observable.subscribe()方法内部产生一个事件，通过OnSubscribe.call产生事件。</li>
 <li>最终通过Observer对象处理事件。</li>
 </ol>
-<h3 id="基本订阅"><a href="#基本订阅" class="headerlink" title="基本订阅"></a>基本订阅</h3><h4 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h4><p>针对上文RxJava中的基本使用，这里会针对这个流程做源码分析。</p>
-<h4 id="subscribe方法"><a href="#subscribe方法" class="headerlink" title="subscribe方法"></a>subscribe方法</h4><p>首先，在RxJava的调用流程中，Observable.subscribe()方法实现Observable和Observer的订阅，同时该方法也是整个RxJava链式调用的起点，所以首先看看Observable.subscribe()的内部逻辑。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public final Subscription subscribe(Subscriber&lt;? super T&gt; subscriber) &#123;</div><div class="line">    return Observable.subscribe(subscriber, this);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="基本订阅"><a href="#基本订阅" class="headerlink" title="基本订阅"></a>基本订阅</h3><p>###源码分析<br>针对上文RxJava中的基本使用，这里会针对这个流程做源码分析。</p>
+<h3 id="subscribe方法"><a href="#subscribe方法" class="headerlink" title="subscribe方法"></a>subscribe方法</h3><p>首先，在RxJava的调用流程中，Observable.subscribe()方法实现Observable和Observer的订阅，同时该方法也是整个RxJava链式调用的起点，所以首先看看Observable.subscribe()的内部逻辑。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public final Subscription subscribe(Subscriber&lt;? super T&gt; subscriber) &#123;</div><div class="line">    return Observable.subscribe(subscriber, this);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>在上面方法中，仅仅只是调用了subscribe(Subscriber<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">static &lt;T&gt; Subscription subscribe(Subscriber&lt;? super T&gt; subscriber, Observable&lt;T&gt; observable) &#123;</div><div class="line">    // 省略部分代码</div><div class="line"></div><div class="line">    // 1、初始化方法，内部没有任何实现</div><div class="line">    subscriber.onStart();</div><div class="line"></div><div class="line">    // 2、将参数subscriber包装成SafeSubscriber</div><div class="line">    //    SafeSubscriber主要保证subscriber完成调用后能被及时取消订阅，并且在onComplete()调用后无法在被调用</div><div class="line">    if (!(subscriber instanceof SafeSubscriber)) &#123;</div><div class="line">        // assign to `observer` so we return the protected version</div><div class="line">        subscriber = new SafeSubscriber&lt;T&gt;(subscriber);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    try &#123;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 核心流程：</div><div class="line">         * </div><div class="line">         *   1、首先， RxJavaHooks.onObservableStart()方法获取OnSubscribe对象</div><div class="line">         *   2、然后，根据获取的OnSubscribe，调用该对象的call()方法，这里可以看到在call()方法中传入的subscriber对象就是在subscribe()方法传入的subscriber对象</div><div class="line">         * </div><div class="line">         *      上面获取的OnSubscribe其实就是在创建Observable时通过create()方法创建的OnSubscribe对象</div><div class="line">         */</div><div class="line">        RxJavaHooks.onObservableStart(observable, observable.onSubscribe).call(subscriber);</div><div class="line">        return RxJavaHooks.onObservableReturn(subscriber);</div><div class="line"></div><div class="line">    &#125; catch (Throwable e) &#123;</div><div class="line">        // 省略部分代码</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>在subscribe()方法中，基本就完成了Observable对象和Subscriber的订阅，并通过OnSubscribe.call(Subscriber)开始整个链式调用。</p>
 <p>在代码中，注释非常清晰，这里就不重复了。</p>
@@ -306,15 +306,15 @@
 
   <div class="post-copyright">
     <p class="copyright-item">
-      <span>Author: </span>
+      <span>原文作者: </span>
       <a href="http://www.slsan.com">slsan</a>
     </p>
     <p class="copyright-item">
-      <span>Link: </span>
+      <span>原文链接: </span>
       <a href="http://www.slsan.com/2018/05/23/RxJava源码分析/">http://www.slsan.com/2018/05/23/RxJava源码分析/</a>
     </p>
     <p class="copyright-item">
-      <span>License: </span>
+      <span>许可协议: </span>
       
       <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
     </p>
@@ -326,7 +326,7 @@
       
   <div class="post-reward">
     <input type="checkbox" name="reward" id="reward" hidden />
-    <label class="reward-button" for="reward">Reward</label>
+    <label class="reward-button" for="reward">赞赏支持</label>
     <div class="qr-code">
       
       
@@ -357,10 +357,16 @@
         
   <nav class="post-nav">
     
+      <a class="prev" href="/2018/05/26/RxJava源码分析-2-变换原理/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">RxJava源码分析(2) 变换原理</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
     
-      <a class="next" href="/2017/09/18/hello-world/">
-        <span class="next-text nav-default">Hello World</span>
-        <span class="prev-text nav-mobile">Next</span>
+    
+      <a class="next" href="/2018/05/01/Retrofit2源码分析-2-CallAdapter详解/">
+        <span class="next-text nav-default">Retrofit2源码分析(2) CallAdapter详解</span>
+        <span class="prev-text nav-mobile">下一篇</span>
         <i class="iconfont icon-right"></i>
       </a>
     
@@ -427,11 +433,11 @@
 
 <div class="copyright">
   <span class="power-by">
-    Powered by <a class="hexo-link" href="https://hexo.io/">Hexo</a>
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
   </span>
   <span class="division">|</span>
   <span class="theme-info">
-    Theme - 
+    主题 - 
     <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
   </span>
 

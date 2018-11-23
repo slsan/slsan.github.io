@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+
+  <meta name="description" content="Retrofit2源码分析"/>
+
+
+
+
+  <meta name="keywords" content="Retrofit2, slsan" />
+
+
+
+
+
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="slsan">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.6.0" />
+
+
+
+<link rel="canonical" href="http://www.slsan.com/2018/04/14/Retrofit2源码分析/"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
+
+
+
+  <link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+
+
+
+
+  
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8b33c3eb165360f0c2cdfeac1181257a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.1.1/av-min.js"></script>
+  <script id="leancloud">
+    AV.init({
+      appId: "UxOOHAetmCuIG2FKJWvuqwv0-gzGzoHsz",
+      appKey: "lPRhtunUcctN73xIicP1P1M3"
+    });
+  </script>
+
+
+
+
+
+    <title> Retrofit2源码分析 - slsan </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">slsan</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            首页
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            归档
+          
+        </li>
+      </a>
+    
+      <a href="/tags">
+        <li class="mobile-menu-item">
+          
+          
+            标签
+          
+        </li>
+      </a>
+    
+      <a href="/categories">
+        <li class="mobile-menu-item">
+          
+          
+            分类
+          
+        </li>
+      </a>
+    
+      <a href="/about">
+        <li class="mobile-menu-item">
+          
+          
+            关于
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">slsan</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            
+            
+              标签
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            
+            
+              分类
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            
+            
+              关于
+            
+          </a>
+        </li>
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Retrofit2源码分析
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-04-14
+        </span>
+        
+          <div class="post-category">
+            
+              <a href="/categories/源码-Android/">源码 Android</a>
+            
+          </div>
+        
+        
+        <div class="post-visits"
+             data-url="/2018/04/14/Retrofit2源码分析/"
+             data-title="Retrofit2源码分析">
+            阅读次数
+          </div>
+        
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本使用"><span class="toc-text">基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#代码演示："><span class="toc-text">代码演示：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源码分析"><span class="toc-text">源码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建Retrofit实例"><span class="toc-text">创建Retrofit实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#build-方法"><span class="toc-text">build()方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置baseUrl"><span class="toc-text">设置baseUrl</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建网络接口代理类"><span class="toc-text">创建网络接口代理类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#这里通过Proxy-newProxyInstance-对动态代理做个简单介绍："><span class="toc-text">这里通过Proxy.newProxyInstance()对动态代理做个简单介绍：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#获取网络请求Call实例"><span class="toc-text">获取网络请求Call实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建ServiceMethod"><span class="toc-text">创建ServiceMethod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ServiceMethod类"><span class="toc-text">ServiceMethod类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建CallAdapter"><span class="toc-text">创建CallAdapter</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#初始化ParameterHandler数组"><span class="toc-text">初始化ParameterHandler数组</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建OkHttpCall"><span class="toc-text">创建OkHttpCall</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OkHttpCall实现同步异步请求"><span class="toc-text">OkHttpCall实现同步异步请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#同步请求方法execute"><span class="toc-text">同步请求方法execute</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建okhttp3的Call对象"><span class="toc-text">创建okhttp3的Call对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解析okhttp请求结果"><span class="toc-text">解析okhttp请求结果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异步请求方法enqueue"><span class="toc-text">异步请求方法enqueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <p>Retrofit是Java及Android平台上类型安全的Http客户端。这是官方给出关于Retrofit的简介。</p>
+<p>这里需要明确：Retrofit只是一个Http网络请求封装库，该库的主要工作是对网络请求进行封装，最终实现网络请求的操作是由Okhttp完成的。</p>
+<h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><p>使用Retrofit发起一次网络请求，只需要以下流程即可: </p>
+<ol>
+<li>定义一个网络请求接口。 </li>
+<li>创建Retrofit实例 </li>
+<li>通过Retrofit创建网络请求接口的动态代理类 </li>
+<li>通过动态代理类获取Call对象，用于网络请求 </li>
+<li>通过Call对象实现网络请求(同步/异步)</li>
+</ol>
+<h4 id="代码演示："><a href="#代码演示：" class="headerlink" title="代码演示："></a>代码演示：</h4><p>1、定义一个网络请求接口实现用户登录功能<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public interface ILoginService &#123;</div><div class="line"></div><div class="line">    @POST(&quot;user/login&quot;)</div><div class="line">    Call&lt;User&gt; Login(@Body User user);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>2、通过Retrofit完成网络请求<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">// 2、创建一个Retrofit对象</div><div class="line">Retrofit retrofit = new Retrofit.Builder()</div><div class="line">        .baseUrl(&quot;http://localhost:8080/testRetrofit/&quot;)</div><div class="line">        .addConverterFactory(GsonConverterFactory.create())</div><div class="line">        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())</div><div class="line">        .build();</div><div class="line"></div><div class="line">// 3、通过Retrofit创建Retrofit的代理实例</div><div class="line">ILoginService loginService = retrofit.create(ILoginService.class);</div><div class="line"></div><div class="line"></div><div class="line">User user = new User();</div><div class="line">user.setUsername(&quot;jack&quot;);</div><div class="line">user.setPassword(&quot;123456&quot;);</div><div class="line">// 4、获取实现网络请求的Call对象</div><div class="line">Call&lt;User&gt; call = loginService.login(user);</div><div class="line"></div><div class="line">// 5、实现异步网络请求</div><div class="line">call.enqueue(new Callback&lt;User&gt;() &#123;</div><div class="line">    @Override</div><div class="line">    public void onResponse(Call&lt;User&gt; call, Response&lt;User&gt; response) &#123;</div><div class="line">        // 获取用户信息</div><div class="line">        User body = response.body();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void onFailure(Call&lt;User&gt; call, Throwable t) &#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line">        // 5、同步请求获取响应</div><div class="line">//        Response&lt;User&gt; execute = call.execute();</div><div class="line">//        User body = execute.body();</div></pre></td></tr></table></figure></p>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p>针对上文中提到的Retrofit的使用流程，这里将对这些流程的源码逐一分析。</p>
+<h3 id="创建Retrofit实例"><a href="#创建Retrofit实例" class="headerlink" title="创建Retrofit实例"></a>创建Retrofit实例</h3><p>Retrofit实例的创建主要是通过内部类Retrofit.Buidler实现的。很明显，这里使用了建造者模式。</p>
+<p>这里看下Builder的构造方法:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">Builder(Platform platform) &#123;</div><div class="line">      this.platform = platform;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public Builder() &#123;</div><div class="line">      this(Platform.get());</div><div class="line">&#125;</div><div class="line"></div><div class="line">Builder(Retrofit retrofit) &#123;</div><div class="line">      platform = Platform.get();</div><div class="line">      callFactory = retrofit.callFactory;</div><div class="line">      baseUrl = retrofit.baseUrl;</div><div class="line"></div><div class="line">      converterFactories.addAll(retrofit.converterFactories);</div><div class="line">      // Remove the default BuiltInConverters instance added by build().</div><div class="line">      converterFactories.remove(0);</div><div class="line"></div><div class="line">      callAdapterFactories.addAll(retrofit.callAdapterFactories);</div><div class="line">      // Remove the default, platform-aware call adapter added by build().</div><div class="line">      callAdapterFactories.remove(callAdapterFactories.size() - 1);</div><div class="line"></div><div class="line">      callbackExecutor = retrofit.callbackExecutor;</div><div class="line">      validateEagerly = retrofit.validateEagerly;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>从源码可知，Retrofit有三个构造方法，但是两个具有包级访问权限，所以外部能使用的就只有无参数构造方法。</p>
+<blockquote>
+<p>这种构造方法的设计和Okhttp是相同的。</p>
+</blockquote>
+<p>在上面的无参构造方法中，内部通过Platform.get()方法获取一个Platform实例以完成Retrofit的创建。</p>
+<blockquote>
+<p>Platform将在下章节中通CallAdapter一同讲解，这里只需要知道在Android平台中该Platform的作用就是提供一个CallAdapter工厂用于创建CallAdapter即可。</p>
+</blockquote>
+<p>接着看下Builder.build()方法，build()方法主要是对Retrofit中一些属性做初始化操作。</p>
+<p>Retrofit声明的属性<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">private final Map&lt;Method, ServiceMethod&lt;?, ?&gt;&gt; serviceMethodCache = new ConcurrentHashMap&lt;&gt;();</div><div class="line"></div><div class="line"> final okhttp3.Call.Factory callFactory;</div><div class="line"> final HttpUrl baseUrl;</div><div class="line"> final List&lt;Converter.Factory&gt; converterFactories;</div><div class="line"> final List&lt;CallAdapter.Factory&gt; callAdapterFactories;</div><div class="line"> final @Nullable Executor callbackExecutor;</div><div class="line"> final boolean validateEagerly;</div></pre></td></tr></table></figure></p>
+<h3 id="build-方法"><a href="#build-方法" class="headerlink" title="build()方法"></a>build()方法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">public Retrofit build() &#123;</div><div class="line"></div><div class="line">      // 设置baseUrl，必填</div><div class="line">      if (baseUrl == null) &#123;</div><div class="line">        throw new IllegalStateException(&quot;Base URL required.&quot;);</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      // 设置callFactory，用于创建Call实例，这里默认使用的是OkHttpClient</div><div class="line">      // 所以通过这里可以看出</div><div class="line">      okhttp3.Call.Factory callFactory = this.callFactory;</div><div class="line">      if (callFactory == null) &#123;</div><div class="line">        callFactory = new OkHttpClient();</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      // 设置异步回调请求执行器，没有设置就使用默认的，在Platform.Android下默认返回主线程(UI线程)执行器</div><div class="line">      // 主要在异步请求中会使用到</div><div class="line">      Executor callbackExecutor = this.callbackExecutor;</div><div class="line">      if (callbackExecutor == null) &#123;</div><div class="line">        callbackExecutor = platform.defaultCallbackExecutor();</div><div class="line">      &#125;</div><div class="line"></div><div class="line"></div><div class="line">      // 创建CallAdapter集合，用于存放所有的callAdapter网络请求适配器</div><div class="line">      List&lt;CallAdapter.Factory&gt; callAdapterFactories = new ArrayList&lt;&gt;(this.callAdapterFactories);</div><div class="line">      callAdapterFactories.add(platform.defaultCallAdapterFactory(callbackExecutor));</div><div class="line"></div><div class="line">      // 创建数据解析器。gson、jaskson等</div><div class="line">      List&lt;Converter.Factory&gt; converterFactories =</div><div class="line">          new ArrayList&lt;&gt;(1 + this.converterFactories.size());</div><div class="line">      // 首先会添加一个默认的BuiltInConverters</div><div class="line">      converterFactories.add(new BuiltInConverters());</div><div class="line">      converterFactories.addAll(this.converterFactories);</div><div class="line"></div><div class="line">      // 创建Retrofit实例</div><div class="line">      return new Retrofit(callFactory, baseUrl, unmodifiableList(converterFactories),</div><div class="line">          unmodifiableList(callAdapterFactories), callbackExecutor, validateEagerly);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>其实，build()方法中主要就是完成了Retrofit的一些配置，这个从最后Retrofit的构造方法中可以看出。</p>
+<h3 id="设置baseUrl"><a href="#设置baseUrl" class="headerlink" title="设置baseUrl"></a>设置baseUrl</h3><p>在Retrofit实例的创建中，baseUrl为必填属性，这里我们看下Builder.baseUrl()的实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">public Builder baseUrl(String baseUrl) &#123;</div><div class="line">  // 非空判断</div><div class="line">  checkNotNull(baseUrl, &quot;baseUrl == null&quot;);</div><div class="line">  // 根据传入的url生成一个HttpUrl对象，这个类主要是对http的url做一些封装</div><div class="line">  HttpUrl httpUrl = HttpUrl.parse(baseUrl);</div><div class="line">  if (httpUrl == null) &#123;</div><div class="line">    throw new IllegalArgumentException(&quot;Illegal URL: &quot; + baseUrl);</div><div class="line">  &#125;</div><div class="line">  return baseUrl(httpUrl);</div><div class="line">&#125;</div><div class="line"></div><div class="line">public Builder baseUrl(HttpUrl baseUrl) &#123;</div><div class="line"></div><div class="line">  checkNotNull(baseUrl, &quot;baseUrl == null&quot;);</div><div class="line">  // 下面整个逻辑判断传入的url是否是以&quot;/&quot;结尾</div><div class="line">  List&lt;String&gt; pathSegments = baseUrl.pathSegments();</div><div class="line">  if (!&quot;&quot;.equals(pathSegments.get(pathSegments.size() - 1))) &#123;</div><div class="line">    throw new IllegalArgumentException(&quot;baseUrl must end in /: &quot; + baseUrl);</div><div class="line">  &#125;</div><div class="line">  this.baseUrl = baseUrl;</div><div class="line">  return this;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在上面baseUrl()方法中可知，url必须要以“/”结尾,这个也是在使用Retrofit中必须要注意的一点。</p>
+<h3 id="创建网络接口代理类"><a href="#创建网络接口代理类" class="headerlink" title="创建网络接口代理类"></a>创建网络接口代理类</h3><blockquote>
+<p>在Retrofit.create()中主要使用到了Java动态代理，如果对动态代理的实现机制不清楚的话，请自行学习，这里就不对动态代理做深入分析了。</p>
+</blockquote>
+<p>在完成了Retrofit实例的创建后，就要通过Retrofit.create()方法创建一个网络请求代理类，这个类根据定义的网络请求接口生成。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ILoginService loginService = retrofit.create(ILoginService.class);</div></pre></td></tr></table></figure></p>
+<p>这里看下Retrofit.create()方法的具体实现:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">public &lt;T&gt; T create(final Class&lt;T&gt; service) &#123;</div><div class="line"></div><div class="line">    // 1、首先判断类service是不是一个接口</div><div class="line">    Utils.validateServiceInterface(service);</div><div class="line">    // 2、validateEagerly默认是false</div><div class="line">    if (validateEagerly) &#123;</div><div class="line">      // 3、提前加载method,这个方法的内部会调用loadServiceMethod()方法，所以这个将会在下面的动态代理中一并讲解。</div><div class="line">      eagerlyValidateMethods(service);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 4、创建service类的动态代理类实例</div><div class="line">    return (T) Proxy.newProxyInstance(service.getClassLoader(), new Class&lt;?&gt;[] &#123; service &#125;,</div><div class="line">        new InvocationHandler() &#123;</div><div class="line">          private final Platform platform = Platform.get();</div><div class="line"></div><div class="line">          @Override public Object invoke(Object proxy, Method method, @Nullable Object[] args)</div><div class="line">              throws Throwable &#123;</div><div class="line">            // 5、如果方法是来自对象的方法，则正常调用。像equal()、hashcode()等，在网络请求中这种情况一般不会发生。</div><div class="line">            if (method.getDeclaringClass() == Object.class) &#123;</div><div class="line">              return method.invoke(this, args);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            // 6、在Android.Platform中isDefaultMethod()方法默认返回false，这里就忽略该方法。</div><div class="line">            if (platform.isDefaultMethod(method)) &#123;</div><div class="line">              return platform.invokeDefaultMethod(method, service, proxy, args);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            // 7，这是动态代理方法中的核心，也是Retrofi他中的核心代码，这里将创建并最终返回网络请求调用的Call实例</div><div class="line">            ServiceMethod&lt;Object, Object&gt; serviceMethod =</div><div class="line">                (ServiceMethod&lt;Object, Object&gt;) loadServiceMethod(method);</div><div class="line">            OkHttpCall&lt;Object&gt; okHttpCall = new OkHttpCall&lt;&gt;(serviceMethod, args);</div><div class="line">            return serviceMethod.adapt(okHttpCall);</div><div class="line">          &#125;</div><div class="line">        &#125;);</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>这里，我们主要关注动态代理类的生成过程，即使用Proxy.newProxyInstance()创建实例的过程。</p>
+<h3 id="这里通过Proxy-newProxyInstance-对动态代理做个简单介绍："><a href="#这里通过Proxy-newProxyInstance-对动态代理做个简单介绍：" class="headerlink" title="这里通过Proxy.newProxyInstance()对动态代理做个简单介绍："></a>这里通过Proxy.newProxyInstance()对动态代理做个简单介绍：</h3><p>通过该方法可以为指定接口（可以是多个接口）生成一个代理类的实例，每当调用接口的相关方法时，最终都会调用InvocationHandler类的invoke方法，而invoke方法的返回值就是接口方法的返回值。**</p>
+<p>因此，在上面的动态代理invoke()方法中，最终会返回一个调用网络请求的Call对象，该对象就是在网络接口方法中指定的返回值。</p>
+<h3 id="获取网络请求Call实例"><a href="#获取网络请求Call实例" class="headerlink" title="获取网络请求Call实例"></a>获取网络请求Call实例</h3><p>在上文中提到过，网络请求Call实例是在InvocationHandler的invoke中创建并返回的，也就是上文中的三行核心代码，这里把这三行代码拿出来单独分析。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">// 1、获取ServiceMethod实例，</div><div class="line">ServiceMethod&lt;Object, Object&gt; serviceMethod =</div><div class="line">    (ServiceMethod&lt;Object, Object&gt;) loadServiceMethod(method);</div><div class="line"></div><div class="line">// 2、获取OkhttpCall实例</div><div class="line">OkHttpCall&lt;Object&gt; okHttpCall = new OkHttpCall&lt;&gt;(serviceMethod, args);</div><div class="line">// 3、最终返回调用网络请求的实例</div><div class="line">return serviceMethod.adapt(okHttpCall);</div></pre></td></tr></table></figure></p>
+<h3 id="创建ServiceMethod"><a href="#创建ServiceMethod" class="headerlink" title="创建ServiceMethod"></a>创建ServiceMethod</h3><p>首先，loadServiceMethod()方法会获取一个ServiceMethod对象，这个loadServiceMethod()方法主要是处理网络接口的注解，最终获取http请求相关的所有参数（url、请求头、请求响应解析器等）。</p>
+<p>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">ServiceMethod&lt;?, ?&gt; loadServiceMethod(Method method) &#123;</div><div class="line"></div><div class="line">  // serviceMethodCache是一个LinkedHashMap，用于缓存ServiceMethod</div><div class="line">  // LinkedHashMap内部使用了LRU算法</div><div class="line">  ServiceMethod&lt;?, ?&gt; result = serviceMethodCache.get(method);</div><div class="line">  if (result != null) return result;</div><div class="line"></div><div class="line">  synchronized (serviceMethodCache) &#123;</div><div class="line">    result = serviceMethodCache.get(method);</div><div class="line">    if (result == null) &#123;</div><div class="line">      // 如果缓存中不存在，那么就根据method创建一个ServiceMethod并放入到缓存中，以便下次使用。</div><div class="line">      result = new ServiceMethod.Builder&lt;&gt;(this, method).build();</div><div class="line">      serviceMethodCache.put(method, result);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  return result;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="ServiceMethod类"><a href="#ServiceMethod类" class="headerlink" title="ServiceMethod类"></a>ServiceMethod类</h3><p>在上文loadServiceMethod()方法中最终是通过new ServiceMethod.Builder&lt;&gt;(this, method).build()创建一个ServiceMethod实例的。<br>这里我们直接看ServiceMethod.Builder的构造方法和build()方法,如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div></pre></td><td class="code"><pre><div class="line">Builder(Retrofit retrofit, Method method) &#123;</div><div class="line">  this.retrofit = retrofit;</div><div class="line">  this.method = method;</div><div class="line">  // 1、获取方法的注解</div><div class="line">  this.methodAnnotations = method.getAnnotations();</div><div class="line">  // 2、获取方法中参数的类型，这是一个Type[]</div><div class="line">  this.parameterTypes = method.getGenericParameterTypes();</div><div class="line">  // 3、获取方法中每个参数的注解，这是一个二维数组Annotation[][]</div><div class="line">  this.parameterAnnotationsArray = method.getParameterAnnotations();</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">public ServiceMethod build() &#123;</div><div class="line">  // 1、创建CallAdapter网络适配器，通过工厂方法创建</div><div class="line">  callAdapter = createCallAdapter();</div><div class="line">  // 2、获取网络响应体类型</div><div class="line">  responseType = callAdapter.responseType();</div><div class="line">  if (responseType == Response.class || responseType == okhttp3.Response.class) &#123;</div><div class="line">    // 这里可以看出响应体需要是ResponseBody</div><div class="line">    throw methodError(&quot;&apos;&quot;</div><div class="line">        + Utils.getRawType(responseType).getName()</div><div class="line">        + &quot;&apos; is not a valid response body type. Did you mean ResponseBody?&quot;);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  // 3、创建响应解析器，通过工厂方法创建，创建过程和callAdapter方法类似</div><div class="line">  responseConverter = createResponseConverter();</div><div class="line"></div><div class="line"></div><div class="line">  // 4、解析网络接口方法的注解，所有作用于method的注解都在这里解析</div><div class="line">  //    例如(GET、POST、HTTP、Multipart、FormUrlEncoded、Headers等)</div><div class="line">  for (Annotation annotation : methodAnnotations) &#123;</div><div class="line">    parseMethodAnnotation(annotation);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  if (httpMethod == null) &#123;</div><div class="line">    // 必须设置Http请求类型</div><div class="line">    throw methodError(&quot;HTTP method annotation is required (e.g., @GET, @POST, etc.).&quot;);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  if (!hasBody) &#123;</div><div class="line">    if (isMultipart) &#123;</div><div class="line">      throw methodError(</div><div class="line">          &quot;Multipart can only be specified on HTTP methods with request body (e.g., @POST).&quot;);</div><div class="line">    &#125;</div><div class="line">    if (isFormEncoded) &#123;</div><div class="line">      throw methodError(&quot;FormUrlEncoded can only be specified on HTTP methods with &quot;</div><div class="line">          + &quot;request body (e.g., @POST).&quot;);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  // 5、获取网络接口方法的参数的数量</div><div class="line">  int parameterCount = parameterAnnotationsArray.length;</div><div class="line">  // 6、创建一个数组，用于存储每个方法参数的注解等信息</div><div class="line">  parameterHandlers = new ParameterHandler&lt;?&gt;[parameterCount];</div><div class="line">  for (int p = 0; p &lt; parameterCount; p++) &#123;</div><div class="line">    // 7、获取第p个参数的类型</div><div class="line">    Type parameterType = parameterTypes[p];</div><div class="line">    if (Utils.hasUnresolvableType(parameterType)) &#123;</div><div class="line">      throw parameterError(p, &quot;Parameter type must not include a type variable or wildcard: %s&quot;,</div><div class="line">          parameterType);</div><div class="line">    &#125;</div><div class="line">    // 8、获取第p个该数上所有的注解</div><div class="line">    Annotation[] parameterAnnotations = parameterAnnotationsArray[p];</div><div class="line">    if (parameterAnnotations == null) &#123;</div><div class="line">      throw parameterError(p, &quot;No Retrofit annotation found.&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 9、根据参数及参数的注解生成一个ParameterHandler对象</div><div class="line">    //    ParameterHandlers类中定义了不同注解的类，用于封装参数。</div><div class="line">    //    最终通过ParameterHandler.apply()方法将参数设置到RequestBuilder中</div><div class="line">    parameterHandlers[p] = parseParameter(p, parameterType, parameterAnnotations);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  if (relativeUrl == null &amp;&amp; !gotUrl) &#123;</div><div class="line">    throw methodError(&quot;Missing either @%s URL or @Url parameter.&quot;, httpMethod);</div><div class="line">  &#125;</div><div class="line">  if (!isFormEncoded &amp;&amp; !isMultipart &amp;&amp; !hasBody &amp;&amp; gotBody) &#123;</div><div class="line">    throw methodError(&quot;Non-body HTTP method cannot contain @Body.&quot;);</div><div class="line">  &#125;</div><div class="line">  if (isFormEncoded &amp;&amp; !gotField) &#123;</div><div class="line">    throw methodError(&quot;Form-encoded method must contain at least one @Field.&quot;);</div><div class="line">  &#125;</div><div class="line">  if (isMultipart &amp;&amp; !gotPart) &#123;</div><div class="line">    throw methodError(&quot;Multipart method must contain at least one @Part.&quot;);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  // 10、创建ServiceMethod对象</div><div class="line">  return new ServiceMethod&lt;&gt;(this);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这上面代码中对build()方法中的具体功能都做了说明，这里选取几个关键代码深入分析一下。</p>
+<h3 id="创建CallAdapter"><a href="#创建CallAdapter" class="headerlink" title="创建CallAdapter"></a>创建CallAdapter</h3><p>首先，在build()方法中会通过createCallAdapter()方法获取CallAdapter网络适配器，这个是通过工厂方法生成的，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">private CallAdapter&lt;T, R&gt; createCallAdapter() &#123;</div><div class="line">  // 1、获取接口方法的返回值类型</div><div class="line">  Type returnType = method.getGenericReturnType();</div><div class="line">  if (Utils.hasUnresolvableType(returnType)) &#123;</div><div class="line">    throw methodError(</div><div class="line">        &quot;Method return type must not include a type variable or wildcard: %s&quot;, returnType);</div><div class="line">  &#125;</div><div class="line">  if (returnType == void.class) &#123;</div><div class="line">    throw methodError(&quot;Service methods cannot return void.&quot;);</div><div class="line">  &#125;</div><div class="line">  // 2、获取该方法中所有的注解</div><div class="line">  Annotation[] annotations = method.getAnnotations();</div><div class="line">  try &#123;</div><div class="line"></div><div class="line">    // 3、获取CallAdapter对象，这个最终会通过工厂类Factory.get()方法实现，具体实现在子类中如RxJava2CallAdapterFactory</div><div class="line">    return (CallAdapter&lt;T, R&gt;) retrofit.callAdapter(returnType, annotations);</div><div class="line">  &#125; catch (RuntimeException e) &#123; // Wide exception range because factories are user code.</div><div class="line">    throw methodError(e, &quot;Unable to create call adapter for %s&quot;, returnType);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>CallAdapter机制将在下一章节中单独讲解，这里先简单介绍一下。<br>同样的createResponseConverter()方法创建响应转换器的过程也和createCallAdapter()过程是类似的。</p>
+</blockquote>
+<h4 id="初始化ParameterHandler数组"><a href="#初始化ParameterHandler数组" class="headerlink" title="初始化ParameterHandler数组"></a>初始化ParameterHandler数组</h4><p>在build()方法中会获取网络接口参数及对应的注解类型，并将每个参数都根据注解类型封装成不同的ParameterHandler类，最终ParameterHandler数组主要用于RequestBuilder的创建。</p>
+<p>该过程比较长，这里就不贴上代码了，可以自行通过build()方法第9个注释处查看具体代码。</p>
+<h3 id="创建OkHttpCall"><a href="#创建OkHttpCall" class="headerlink" title="创建OkHttpCall"></a>创建OkHttpCall</h3><blockquote>
+<p>OkHttpCall：就是对Okhttp中的Call做了一层封装，最终在OkHttpCall中会通过Okhttp.Call完成网络请求的操作</p>
+</blockquote>
+<p>完成了ServiceMethod对象的创建后，在InvovationHandler.invoke()方法中就要通过ServiceMethdo对象和网络接口参数，创建一个OkHttpCall对象，这里看下OkHttpCall的构造方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">OkHttpCall(ServiceMethod&lt;T, ?&gt; serviceMethod, @Nullable Object[] args) &#123;</div><div class="line">    this.serviceMethod = serviceMethod;</div><div class="line">    this.args = args;</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>这个构造方法很简单，就是完成了两个属性的赋值操作。</p>
+<p>OkHttpCall是实现网络请求的具体实现类，这个将在下文中具体分析。</p>
+<p>在获取到ServiceMethod和OkHttpCall对象后，在Retrofit中将通过ServiceMethod的adapt(OkHttpCall)方法获取网络接口的动态代理对象。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">serviceMethod.adapt(okHttpCall);</div></pre></td></tr></table></figure></p>
+<p>ServiceMethod.adapt()方法的内部很简单，通过具体的CallAdapter网络适配器获取Call对象，如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">T adapt(Call&lt;R&gt; call) &#123;</div><div class="line">	return callAdapter.adapt(call);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这样在整个Retrofit.create()方法中就通过动态代理完成了Call对象的获取，这样就可以使用OkHttpCall完成网络请求了。</p>
+<blockquote>
+<p>CallAdapter机制将在下一章节中单独讲解，这里先简单介绍一下。</p>
+</blockquote>
+<h3 id="OkHttpCall实现同步异步请求"><a href="#OkHttpCall实现同步异步请求" class="headerlink" title="OkHttpCall实现同步异步请求"></a>OkHttpCall实现同步异步请求</h3><p>在通过网络接口获取了Call对象后，就可以开始完成网络请求了。</p>
+<p>这个过程主要是通过Call的具体实现类OkHttpCall实现的，这里对实OkHttpCall的同步请求和异步请求的实现做具体分析。</p>
+<h3 id="同步请求方法execute"><a href="#同步请求方法execute" class="headerlink" title="同步请求方法execute"></a>同步请求方法execute</h3><p>在获取了网络接口定义的Call对象后，要想实现同步请求只需要调用Call.execute()方法即可，这里根据上一章节中实例演示同步请求代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// 5、同步请求获取响应</div><div class="line">Response&lt;User&gt; execute = call.execute();</div><div class="line">// </div><div class="line">User body = execute.body();</div></pre></td></tr></table></figure></p>
+<p>OkHttpCall中的同步方法execute()的逻辑非常请求，主要包括：</p>
+<ol>
+<li>创建一个okhttp3.Call实例</li>
+<li>调动okhttp3.Call的同步方法execute获取响应</li>
+<li>解析响应结果并返回<br>execute()方法如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">@Override </div><div class="line">  public Response&lt;T&gt; execute() throws IOException &#123;</div><div class="line">    // 1、定义一个okhttp的Call</div><div class="line">    //    看到这里就很清晰了，Retrofit是通过okhttp完成网络请求的</div><div class="line">    okhttp3.Call call;</div><div class="line"></div><div class="line">    synchronized (this) &#123;</div><div class="line">      if (executed) throw new IllegalStateException(&quot;Already executed.&quot;);</div><div class="line">      executed = true;</div><div class="line"></div><div class="line">      if (creationFailure != null) &#123;</div><div class="line">        if (creationFailure instanceof IOException) &#123;</div><div class="line">          throw (IOException) creationFailure;</div><div class="line">        &#125; else if (creationFailure instanceof RuntimeException) &#123;</div><div class="line">          throw (RuntimeException) creationFailure;</div><div class="line">        &#125; else &#123;</div><div class="line">          throw (Error) creationFailure;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      call = rawCall;</div><div class="line">      if (call == null) &#123;</div><div class="line">        try &#123;</div><div class="line">          // 2、创建okhttp中的call对象</div><div class="line">          call = rawCall = createRawCall();</div><div class="line">        &#125; catch (IOException | RuntimeException | Error e) &#123;</div><div class="line">          throwIfFatal(e); //  Do not assign a fatal error to creationFailure.</div><div class="line">          creationFailure = e;</div><div class="line">          throw e;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (canceled) &#123;</div><div class="line">      call.cancel();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 3、调用同步方法，并完成响应结果的解析</div><div class="line">    return parseResponse(call.execute());</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="创建okhttp3的Call对象"><a href="#创建okhttp3的Call对象" class="headerlink" title="创建okhttp3的Call对象"></a>创建okhttp3的Call对象</h3><p>在上面execute()方法中，okhttp3.Call对象主要是通过createRawCall()方法创建的，这里看下该方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">private okhttp3.Call createRawCall() throws IOException &#123;</div><div class="line">    okhttp3.Call call = serviceMethod.toCall(args);</div><div class="line">    if (call == null) &#123;</div><div class="line">      throw new NullPointerException(&quot;Call.Factory returned null.&quot;);</div><div class="line">    &#125;</div><div class="line">    return call;</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>在该方法中，主要通过serviceMethod.toCall()方法完成okhttp3.Call对象的创建。</p>
+<p>接下来，我们看下toCall()方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">okhttp3.Call toCall(@Nullable Object... args) throws IOException &#123;</div><div class="line">    // 1、创建RequestBuilder对象，在该对象中将包装网络请求相关的参数</div><div class="line">    RequestBuilder requestBuilder = new RequestBuilder(httpMethod, baseUrl, relativeUrl, headers,</div><div class="line">        contentType, hasBody, isFormEncoded, isMultipart);</div><div class="line"></div><div class="line">    @SuppressWarnings(&quot;unchecked&quot;) // It is an error to invoke a method with the wrong arg types.</div><div class="line">    ParameterHandler&lt;Object&gt;[] handlers = (ParameterHandler&lt;Object&gt;[]) parameterHandlers;</div><div class="line"></div><div class="line">    int argumentCount = args != null ? args.length : 0;</div><div class="line">    if (argumentCount != handlers.length) &#123;</div><div class="line">      throw new IllegalArgumentException(&quot;Argument count (&quot; + argumentCount</div><div class="line">          + &quot;) doesn&apos;t match expected count (&quot; + handlers.length + &quot;)&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 2、网络请求接口参数封装到RequestBuilder对象中，这样可以获取整个网络请求完整的参数</div><div class="line">    for (int p = 0; p &lt; argumentCount; p++) &#123;</div><div class="line">      handlers[p].apply(requestBuilder, args[p]);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 3、通过RequestBuilder.build()方法创建okhttp3所需要的Request对象</div><div class="line">    // 4、最终通过CallFactory.newCall()创建okhttp3网络请求的Call对象（这个CallFactory对象就是在Retrofit创建时创建的OkHttpClient对象）</div><div class="line">    return callFactory.newCall(requestBuilder.build());</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>toCall方法的功能逻辑也很清晰：</p>
+<p>封装所有网络请求参数到RequestBuilder</p>
+<ol>
+<li>RequestBuilder.build()方法将所有参数都解析成Okhttp3的网络参数的格式。并最终生成一个okhttp3.Request对象。</li>
+<li>通过CallFactory也就是OkHttpClient对象创建一个Call实例。</li>
+<li>这里需要注意的就是Retrofit中的RequestBuilder类，该类中实现了Retrofit到okhttp3的转换。</li>
+</ol>
+<h3 id="解析okhttp请求结果"><a href="#解析okhttp请求结果" class="headerlink" title="解析okhttp请求结果"></a>解析okhttp请求结果</h3><p>当Retrofit通过okhttp3完成了同步请求后，在获取请求结果后，将会对该结果进行解析，最终将okhttp的结果转化成Retrofit的请求结果。</p>
+<p>这里我们看下OkHttpCall.parseResponse()方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">Response&lt;T&gt; parseResponse(okhttp3.Response rawResponse) throws IOException &#123;</div><div class="line">    // 1、获取okhttp中的响应体</div><div class="line">    ResponseBody rawBody = rawResponse.body();</div><div class="line"></div><div class="line">    // 这里会移除响应体，在处理一些错误时会使用Retrofit中定义的响应体，例如Response.error()方法</div><div class="line">    rawResponse = rawResponse.newBuilder()</div><div class="line">        .body(new NoContentResponseBody(rawBody.contentType(), rawBody.contentLength()))</div><div class="line">        .build();</div><div class="line"></div><div class="line">    // 2、获取响应码</div><div class="line">    int code = rawResponse.code();</div><div class="line"></div><div class="line">    // 异常结果处理 start</div><div class="line">    if (code &lt; 200 || code &gt;= 300) &#123;</div><div class="line">      try &#123;</div><div class="line">        // 返回错误响应</div><div class="line">        ResponseBody bufferedBody = Utils.buffer(rawBody);</div><div class="line">        return Response.error(bufferedBody, rawResponse);</div><div class="line">      &#125; finally &#123;</div><div class="line">        rawBody.close();</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (code == 204 || code == 205) &#123;</div><div class="line">      rawBody.close();</div><div class="line">      return Response.success(null, rawResponse);</div><div class="line">    &#125;</div><div class="line">    // 异常结果处理 end</div><div class="line"></div><div class="line"></div><div class="line">    // 3、对响应结果进行处理</div><div class="line">    ExceptionCatchingRequestBody catchingBody = new ExceptionCatchingRequestBody(rawBody);</div><div class="line">    try &#123;</div><div class="line">      // 4、通过响应解析器将结果转化成对应的响应结果类</div><div class="line">      T body = serviceMethod.toResponse(catchingBody);</div><div class="line">      // 5、获取具体Response类（body：网络请求接口中定义的结果类；rawResponse：okhttp3中解析的响应体）</div><div class="line">      return Response.success(body, rawResponse);</div><div class="line">    &#125; catch (RuntimeException e) &#123;</div><div class="line">      // If the underlying source threw an exception, propagate that rather than indicating it was</div><div class="line">      // a runtime exception.</div><div class="line">      catchingBody.throwIfCaught();</div><div class="line">      throw e;</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>在parseResponse()方法中，主要通过serviceMethod.toResponse()方法将okhttp的响应体内容解析成网络接口中指定的类型，在这个方法中主要使用了响应解析器，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">R toResponse(ResponseBody body) throws IOException &#123;</div><div class="line">    return responseConverter.convert(body);</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>最后通过Response.success(body, rawResponse)方法创建一个Response对象，该对象中封装了通过okhttp3获取的网络请求。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">public static &lt;T&gt; Response&lt;T&gt; success(@Nullable T body, okhttp3.Response rawResponse) &#123;</div><div class="line">    checkNotNull(rawResponse, &quot;rawResponse == null&quot;);</div><div class="line">    if (!rawResponse.isSuccessful()) &#123;</div><div class="line">      throw new IllegalArgumentException(&quot;rawResponse must be successful response&quot;);</div><div class="line">    &#125;</div><div class="line">    return new Response&lt;&gt;(rawResponse, body, null);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这样整个同步请求就完成了。</p>
+<h3 id="异步请求方法enqueue"><a href="#异步请求方法enqueue" class="headerlink" title="异步请求方法enqueue"></a>异步请求方法enqueue</h3><p>通过Call对象实现异步请求，只需要调用OkHttpCall.enqueue()方法即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">// 实现异步网络请求</div><div class="line">call.enqueue(new Callback&lt;User&gt;() &#123;</div><div class="line">    @Override</div><div class="line">    public void onResponse(Call&lt;User&gt; call, Response&lt;User&gt; response) &#123;</div><div class="line">        // 获取用户信息</div><div class="line">        User body = response.body();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void onFailure(Call&lt;User&gt; call, Throwable t) &#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p>异步网络请求enqueue()方法内部的逻辑也非常清晰，基本和上文中同步请求的步骤一致，主要包括：</p>
+<ol>
+<li>创建一个okhttp3.Call实例</li>
+<li>调动okhttp3.Call的同步方法enqueue获取响应</li>
+<li>解析响应结果</li>
+<li>最终调用回调接口传递网络请求结果<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line">@Override </div><div class="line">  public void enqueue(final Callback&lt;T&gt; callback) &#123;</div><div class="line">    checkNotNull(callback, &quot;callback == null&quot;);</div><div class="line"></div><div class="line">    okhttp3.Call call;</div><div class="line">    Throwable failure;</div><div class="line"></div><div class="line">    synchronized (this) &#123;</div><div class="line">      if (executed) throw new IllegalStateException(&quot;Already executed.&quot;);</div><div class="line">      executed = true;</div><div class="line"></div><div class="line">      call = rawCall;</div><div class="line">      failure = creationFailure;</div><div class="line">      if (call == null &amp;&amp; failure == null) &#123;</div><div class="line">        try &#123;</div><div class="line">          // 1、创建okhttp3.Call对象</div><div class="line">          call = rawCall = createRawCall();</div><div class="line">        &#125; catch (Throwable t) &#123;</div><div class="line">          throwIfFatal(t);</div><div class="line">          failure = creationFailure = t;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (failure != null) &#123;</div><div class="line">      callback.onFailure(this, failure);</div><div class="line">      return;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (canceled) &#123;</div><div class="line">      call.cancel();</div><div class="line">    &#125;</div><div class="line">    // 2、调用okhttp3.Call的异步方法enqueue()</div><div class="line">    call.enqueue(new okhttp3.Callback() &#123;</div><div class="line">      @Override public void onResponse(okhttp3.Call call, okhttp3.Response rawResponse) &#123;</div><div class="line">        Response&lt;T&gt; response;</div><div class="line">        try &#123;</div><div class="line">          // 3、解析网络响应</div><div class="line">          response = parseResponse(rawResponse);</div><div class="line">        &#125; catch (Throwable e) &#123;</div><div class="line">          callFailure(e);</div><div class="line">          return;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        try &#123;</div><div class="line">          // 4、调用回调方法</div><div class="line">          callback.onResponse(OkHttpCall.this, response);</div><div class="line">        &#125; catch (Throwable t) &#123;</div><div class="line">          t.printStackTrace();</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      @Override public void onFailure(okhttp3.Call call, IOException e) &#123;</div><div class="line">        callFailure(e);</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      private void callFailure(Throwable e) &#123;</div><div class="line">        try &#123;</div><div class="line">          callback.onFailure(OkHttpCall.this, e);</div><div class="line">        &#125; catch (Throwable t) &#123;</div><div class="line">          t.printStackTrace();</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>异步方法的主要逻辑基本在同步方法中讲过了，这里就不在介绍了。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这样，整个Retrofit完成网络请求的流程的源码就都分析完了。</p>
+<p>在该源码分析中，CallAdapter获取具体网络适配器的实现原理将会在下一章节中具体讲解。</p>
+
+      
+    </div>
+
+    
+      
+      
+
+  <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="http://www.slsan.com">slsan</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="http://www.slsan.com/2018/04/14/Retrofit2源码分析/">http://www.slsan.com/2018/04/14/Retrofit2源码分析/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span>
+      
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+
+
+
+      
+      
+  <div class="post-reward">
+    <input type="checkbox" name="reward" id="reward" hidden />
+    <label class="reward-button" for="reward">赞赏支持</label>
+    <div class="qr-code">
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/wechat.png" title="wechat">
+        </label>
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/alipay.png" title="alipay">
+        </label>
+      
+    </div>
+  </div>
+
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Retrofit2/">Retrofit2</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2018/05/01/Retrofit2源码分析-2-CallAdapter详解/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Retrofit2源码分析(2) CallAdapter详解</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:slsanvip@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/slsan" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2018
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">slsan</span>
+  </span>
+</div>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+  
+
+  
+
+
+
+    
+  
+
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.6.0"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.6.0"></script>
+
+  </body>
+</html>

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+
+  <meta name="description" content="Retrofit2源码分析(2) CallAdapter详解"/>
+
+
+
+
+  <meta name="keywords" content="Retrofit2, slsan" />
+
+
+
+
+
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="slsan">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.6.0" />
+
+
+
+<link rel="canonical" href="http://www.slsan.com/2018/05/01/Retrofit2源码分析-2-CallAdapter详解/"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
+
+
+
+  <link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+
+
+
+
+  
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8b33c3eb165360f0c2cdfeac1181257a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.1.1/av-min.js"></script>
+  <script id="leancloud">
+    AV.init({
+      appId: "UxOOHAetmCuIG2FKJWvuqwv0-gzGzoHsz",
+      appKey: "lPRhtunUcctN73xIicP1P1M3"
+    });
+  </script>
+
+
+
+
+
+    <title> Retrofit2源码分析(2) CallAdapter详解 - slsan </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">slsan</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            首页
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            归档
+          
+        </li>
+      </a>
+    
+      <a href="/tags">
+        <li class="mobile-menu-item">
+          
+          
+            标签
+          
+        </li>
+      </a>
+    
+      <a href="/categories">
+        <li class="mobile-menu-item">
+          
+          
+            分类
+          
+        </li>
+      </a>
+    
+      <a href="/about">
+        <li class="mobile-menu-item">
+          
+          
+            关于
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">slsan</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            
+            
+              标签
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            
+            
+              分类
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            
+            
+              关于
+            
+          </a>
+        </li>
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Retrofit2源码分析(2) CallAdapter详解
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-05-01
+        </span>
+        
+          <div class="post-category">
+            
+              <a href="/categories/源码-Android/">源码 Android</a>
+            
+          </div>
+        
+        
+        <div class="post-visits"
+             data-url="/2018/05/01/Retrofit2源码分析-2-CallAdapter详解/"
+             data-title="Retrofit2源码分析(2) CallAdapter详解">
+            阅读次数
+          </div>
+        
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Platform介绍"><span class="toc-text">Platform介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置默认CallAdapterFactory"><span class="toc-text">设置默认CallAdapterFactory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CallAdapter初始化"><span class="toc-text">CallAdapter初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ExecutorCallAdapterFactory类"><span class="toc-text">ExecutorCallAdapterFactory类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <p>本章节中将对Retrofit2中的CallAdapter机制做详细讲解。</p>
+<p>在上一章节中曾提到了Call对象的创建是通过是通过ServiceMethod.adapt()完成的，这里在看看该方法的源码：</p>
+<p>ServiceMethod.adapt()方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">T adapt(Call&lt;R&gt; call) &#123;</div><div class="line">    return callAdapter.adapt(call);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>通过上述源码可知，最终Call对象是调用CallAdapter.adapt(Call)方法创建的，那么CallAdapter及具体的Call对象又是如何生成的呢？</p>
+<p>带着这个疑问开始本章节。</p>
+<h3 id="Platform介绍"><a href="#Platform介绍" class="headerlink" title="Platform介绍"></a>Platform介绍</h3><p>在上一章节Retrofit创建过程中知道，Retrofit创建时需要获取一个Platform对象，用于指定Retrofit运行的平台，这里我们看下Platform类，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">class Platform &#123;</div><div class="line"></div><div class="line">  // 1、创建Platform实例</div><div class="line">  private static final Platform PLATFORM = findPlatform();</div><div class="line"></div><div class="line">  // 2、获取Platform实例</div><div class="line">  static Platform get() &#123;</div><div class="line">    return PLATFORM;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  // 3、创建Platform实例</div><div class="line">  private static Platform findPlatform() &#123;</div><div class="line">    try &#123;</div><div class="line">      // 通过反射查找是否存在Android平台的类，</div><div class="line">      Class.forName(&quot;android.os.Build&quot;);</div><div class="line">      if (Build.VERSION.SDK_INT != 0) &#123;</div><div class="line">        return new Android();</div><div class="line">      &#125;</div><div class="line">    &#125; catch (ClassNotFoundException ignored) &#123;</div><div class="line">    &#125;</div><div class="line">    try &#123;</div><div class="line">      Class.forName(&quot;java.util.Optional&quot;);</div><div class="line">      return new Java8();</div><div class="line">    &#125; catch (ClassNotFoundException ignored) &#123;</div><div class="line">    &#125;</div><div class="line">    return new Platform();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  // 获取默认的回调执行器</div><div class="line">  @Nullable Executor defaultCallbackExecutor() &#123;</div><div class="line">    return null;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  // 获取默认CallAdapter.Factory</div><div class="line">  CallAdapter.Factory defaultCallAdapterFactory(@Nullable Executor callbackExecutor) &#123;</div><div class="line">    if (callbackExecutor != null) &#123;</div><div class="line">      return new ExecutorCallAdapterFactory(callbackExecutor);</div><div class="line">    &#125;</div><div class="line">    return DefaultCallAdapterFactory.INSTANCE;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  boolean isDefaultMethod(Method method) &#123;</div><div class="line">    return false;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  @Nullable Object invokeDefaultMethod(Method method, Class&lt;?&gt; declaringClass, Object object,</div><div class="line">      @Nullable Object... args) throws Throwable &#123;</div><div class="line">    throw new UnsupportedOperationException();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>从上面Platform的findPlatform()方法可知，Retrofit中支持Android和Java8两个平台。</p>
+<p>我们看下Android平台的具体逻辑实现，也就是Platform.Android类：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">static class Android extends Platform &#123;</div><div class="line">    // 1、获取默认的线程执行器，这里是主线程</div><div class="line">    @Override public Executor defaultCallbackExecutor() &#123;</div><div class="line">      return new MainThreadExecutor();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 2、获取默认的Factory</div><div class="line">    @Override CallAdapter.Factory defaultCallAdapterFactory(@Nullable Executor callbackExecutor) &#123;</div><div class="line">      if (callbackExecutor == null) throw new AssertionError();</div><div class="line">      // 返回一个默认的Factory，也就是ExecutorCallAdapterFactory</div><div class="line">      return new ExecutorCallAdapterFactory(callbackExecutor);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 3、主线程回调执行器，用于完成线程切换</div><div class="line">    static class MainThreadExecutor implements Executor &#123;</div><div class="line">      // 创建主线程Handler，</div><div class="line">      private final Handler handler = new Handler(Looper.getMainLooper());</div><div class="line"></div><div class="line">      @Override public void execute(Runnable r) &#123;</div><div class="line">        // 线程切换。</div><div class="line">        handler.post(r);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>在Platform.Android中复写了defaultCallAdapterFactory()和defaultCallbackExecutor()方法，这两个方法分别返回了一个默认的工厂和默认的主线程回调执行器。</p>
+<p>这里可以明确下：在Android平台上默认的CallAdapter.Factory就是通过上面的defaultCallAdapterFactory()方法设置的，也就是说Android中默认的CallAdapter.Factory就是ExecutorCallAdapterFactory。</p>
+<h3 id="设置默认CallAdapterFactory"><a href="#设置默认CallAdapterFactory" class="headerlink" title="设置默认CallAdapterFactory"></a>设置默认CallAdapterFactory</h3><p>在Retrofit中默认的CallAdapter.Factory又是如何指定的呢？</p>
+<p>这里我们看下Retrofit的创建过程，也就是Retrofit.Builder.build()方法，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">public void build()&#123;</div><div class="line">  // 省略部分代码</div><div class="line"></div><div class="line">  // 1、获取一个Executor执行器</div><div class="line">  Executor callbackExecutor = this.callbackExecutor;</div><div class="line">  if (callbackExecutor == null) &#123;</div><div class="line">    callbackExecutor = platform.defaultCallbackExecutor();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  // 2、初始化一个工厂集合，用于存放所有的CallAdapterFactory</div><div class="line">  List&lt;CallAdapter.Factory&gt; callAdapterFactories = new ArrayList&lt;&gt;(this.callAdapterFactories);</div><div class="line">  // 3、添加默认CallAdapterFactory</div><div class="line">  callAdapterFactories.add(platform.defaultCallAdapterFactory(callbackExecutor));</div><div class="line"></div><div class="line">    // 省略部分代码</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>很清楚了吧，在Retrofit创建时会从Platform对象中获取默认的CallAdapter.Factory并设置，在Android平台中这个Factory就是指ExecutorCallAdapterFactory。</p>
+<h3 id="CallAdapter初始化"><a href="#CallAdapter初始化" class="headerlink" title="CallAdapter初始化"></a>CallAdapter初始化</h3><p>既然知道了Retrofit中默认的CallAdapter.Factory的是ExecutorCallAdapterFactory，那么接下来就需要看下ExecutorCallAdapterFactory是如何实现CallAdapter的创建的。</p>
+<p>这里，再次看下ServiceMethod的adapt()方法中，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">T adapt(Call&lt;R&gt; call) &#123;</div><div class="line">    return callAdapter.adapt(call);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在ServiceMethod中CallAdapter对象的初始化是在ServiceMethod.Builder.build()方法中通过调用createCallAdapter()方法实现的。</p>
+<p>createCallAdapter()方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">private CallAdapter&lt;T, R&gt; createCallAdapter() &#123;</div><div class="line">  // 1、获取接口方法的返回值类型</div><div class="line">  Type returnType = method.getGenericReturnType();</div><div class="line">  if (Utils.hasUnresolvableType(returnType)) &#123;</div><div class="line">    throw methodError(</div><div class="line">        &quot;Method return type must not include a type variable or wildcard: %s&quot;, returnType);</div><div class="line">  &#125;</div><div class="line">  if (returnType == void.class) &#123;</div><div class="line">    throw methodError(&quot;Service methods cannot return void.&quot;);</div><div class="line">  &#125;</div><div class="line">  // 2、获取该方法中所有的注解</div><div class="line">  Annotation[] annotations = method.getAnnotations();</div><div class="line">  try &#123;</div><div class="line"></div><div class="line">    // 3、获取CallAdapter对象，这个最终会通过工厂类Factory.get()方法实现，默认工行就是ExecutorCallAdapterFactory</div><div class="line">    return (CallAdapter&lt;T, R&gt;) retrofit.callAdapter(returnType, annotations);</div><div class="line">  &#125; catch (RuntimeException e) &#123; // Wide exception range because factories are user code.</div><div class="line">    throw methodError(e, &quot;Unable to create call adapter for %s&quot;, returnType);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在上面createCallAdapter()方法中最终会通过调用Retrofit.callAdapter()方法获取具体的CallAdapter.</p>
+<p>这里看下Retrofit中callAdapter()方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">public CallAdapter&lt;?, ?&gt; callAdapter(Type returnType, Annotation[] annotations) &#123;</div><div class="line">    return nextCallAdapter(null, returnType, annotations);</div><div class="line">&#125;</div><div class="line"></div><div class="line">public CallAdapter&lt;?, ?&gt; nextCallAdapter(@Nullable CallAdapter.Factory skipPast, Type returnType,</div><div class="line">  Annotation[] annotations) &#123;</div><div class="line">    checkNotNull(returnType, &quot;returnType == null&quot;);</div><div class="line">    checkNotNull(annotations, &quot;annotations == null&quot;);</div><div class="line"></div><div class="line">    int start = callAdapterFactories.indexOf(skipPast) + 1;</div><div class="line">    for (int i = start, count = callAdapterFactories.size(); i &lt; count; i++) &#123;</div><div class="line">      // 1、通过遍历的方式在工厂集合中根据网络接口定义的返回值类型找到合适的工厂。</div><div class="line">      // 2、通过指定工厂的get()方法获取具体CallAdapter</div><div class="line">      CallAdapter&lt;?, ?&gt; adapter = callAdapterFactories.get(i).get(returnType, annotations, this);</div><div class="line">      if (adapter != null) &#123;</div><div class="line">        return adapter;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">// 省略部分代码</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>最终，CallAdapter会在Retrofit.nextCallAdapter()方法实现，该方法的功能主要就是：根据参数中网络接口的具体返回值类型找到对应的CallAdpater.Factory并最终通过调用Factory.get()方法获取CallAdapter对象。</p>
+<h3 id="ExecutorCallAdapterFactory类"><a href="#ExecutorCallAdapterFactory类" class="headerlink" title="ExecutorCallAdapterFactory类"></a>ExecutorCallAdapterFactory类</h3><p>在上文中对CallAdapter.Factory创建CallAdapter对象的流程做了具体分析，这里我们就要看下CallAdapter是如何创建Call对象的。</p>
+<p>通过ServiceMethod.adapt()方法可知，CallAdapter获取具体Call主要是通过CallAdapter.adpat()方法实现的。</p>
+<p>这里我们以默认的工厂ExecutorCallAdapterFactory生成的CallAdapter做具体分析下。</p>
+<p>ExecutorCallAdapterFactory的源码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div></pre></td><td class="code"><pre><div class="line">final class ExecutorCallAdapterFactory extends CallAdapter.Factory &#123;</div><div class="line">  final Executor callbackExecutor;</div><div class="line"></div><div class="line">  // 1、创建一个ExecutorCallAdapterFactory对象，指定主线程回调执行器</div><div class="line">  ExecutorCallAdapterFactory(Executor callbackExecutor) &#123;</div><div class="line">    this.callbackExecutor = callbackExecutor;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  // 2、通过该刚发返回具体的CallAdapter对象</div><div class="line">  @Override</div><div class="line">  public CallAdapter&lt;?, ?&gt; get(Type returnType, Annotation[] annotations, Retrofit retrofit) &#123;</div><div class="line">    if (getRawType(returnType) != Call.class) &#123;</div><div class="line">      return null;</div><div class="line">    &#125;</div><div class="line">    // 获取网络接口接口返回类型</div><div class="line">    final Type responseType = Utils.getCallResponseType(returnType);</div><div class="line"></div><div class="line">    // 创建一个CallAdapter实例</div><div class="line">    return new CallAdapter&lt;Object, Call&lt;?&gt;&gt;() &#123;</div><div class="line">      @Override public Type responseType() &#123;</div><div class="line">        return responseType;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      // CallAdapter调用该方法返回具体Call实例</div><div class="line">      @Override public Call&lt;Object&gt; adapt(Call&lt;Object&gt; call) &#123;</div><div class="line">        // 创建具体的Call对象，这里是ExecutorCallbackCall</div><div class="line">        return new ExecutorCallbackCall&lt;&gt;(callbackExecutor, call);</div><div class="line">      &#125;</div><div class="line">    &#125;;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  // ExecutorCallbackCall类，该类中使用了委托模式</div><div class="line">  static final class ExecutorCallbackCall&lt;T&gt; implements Call&lt;T&gt; &#123;</div><div class="line">    final Executor callbackExecutor;</div><div class="line">    // 在动态代理类创建过程中，delegate就是指OkHttpCall对象</div><div class="line">    final Call&lt;T&gt; delegate;</div><div class="line"></div><div class="line">    ExecutorCallbackCall(Executor callbackExecutor, Call&lt;T&gt; delegate) &#123;</div><div class="line">      this.callbackExecutor = callbackExecutor;</div><div class="line">      this.delegate = delegate;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 实现异步请求</div><div class="line">    @Override public void enqueue(final Callback&lt;T&gt; callback) &#123;</div><div class="line">      checkNotNull(callback, &quot;callback == null&quot;);</div><div class="line">      // 开始异步请求</div><div class="line">      delegate.enqueue(new Callback&lt;T&gt;() &#123;</div><div class="line">        @Override public void onResponse(Call&lt;T&gt; call, final Response&lt;T&gt; response) &#123;</div><div class="line">          // 获取异步请求后，执行线程切换</div><div class="line">          callbackExecutor.execute(new Runnable() &#123;</div><div class="line">            @Override public void run() &#123;</div><div class="line">              if (delegate.isCanceled()) &#123;</div><div class="line">                // Emulate OkHttp&apos;s behavior of throwing/delivering an IOException on cancellation.</div><div class="line">                callback.onFailure(ExecutorCallbackCall.this, new IOException(&quot;Canceled&quot;));</div><div class="line">              &#125; else &#123;</div><div class="line">                callback.onResponse(ExecutorCallbackCall.this, response);</div><div class="line">              &#125;</div><div class="line">            &#125;</div><div class="line">          &#125;);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        @Override public void onFailure(Call&lt;T&gt; call, final Throwable t) &#123;</div><div class="line">          callbackExecutor.execute(new Runnable() &#123;</div><div class="line">            @Override public void run() &#123;</div><div class="line">              callback.onFailure(ExecutorCallbackCall.this, t);</div><div class="line">            &#125;</div><div class="line">          &#125;);</div><div class="line">        &#125;</div><div class="line">      &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override public boolean isExecuted() &#123;</div><div class="line">      return delegate.isExecuted();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 同步请求</div><div class="line">    @Override public Response&lt;T&gt; execute() throws IOException &#123;</div><div class="line">      return delegate.execute();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override public void cancel() &#123;</div><div class="line">      delegate.cancel();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override public boolean isCanceled() &#123;</div><div class="line">      return delegate.isCanceled();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @SuppressWarnings(&quot;CloneDoesntCallSuperClone&quot;) // Performing deep clone.</div><div class="line">    @Override public Call&lt;T&gt; clone() &#123;</div><div class="line">      return new ExecutorCallbackCall&lt;&gt;(callbackExecutor, delegate.clone());</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override public Request request() &#123;</div><div class="line">      return delegate.request();</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在ExecutorCallAdapterFactory类中，主要就是复写了get()方法，在该方法中创建一个具体的CallAdpater对象并返回，而在该CallAdapter中adapt()方法创建了一个ExecutorCallbackCall的实例。</p>
+<p>ExecutorCallbackCall是ExecutorCallAdapterFactory中定义的内部类，该类继承自Call对象，在该类中对重写了Call的enqueue()、execute()方法。</p>
+<p>所以，最终我们执行网络接口方法时，实际上就是通过ExecutorCallbackCall实现的。</p>
+<p>不明白的话，看下上章节基本使用中的示例代码，如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ILoginService loginService = retrofit.create(ILoginService.class);</div><div class="line"></div><div class="line">//这个call对象实际就是ExecutorCallbackCall对象。</div><div class="line">Call&lt;User&gt; call = loginService.login(user);</div></pre></td></tr></table></figure></p>
+<p>这里，我们需要注意的是ExecutorCallbackCall异步方法，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">// 实现异步请求</div><div class="line">   @Override </div><div class="line">   public void enqueue(final Callback&lt;T&gt; callback) &#123;</div><div class="line">     checkNotNull(callback, &quot;callback == null&quot;);</div><div class="line">     // 开始异步请求</div><div class="line">     delegate.enqueue(new Callback&lt;T&gt;() &#123;</div><div class="line">       @Override public void onResponse(Call&lt;T&gt; call, final Response&lt;T&gt; response) &#123;</div><div class="line">         // 获取异步请求后，执行线程切换</div><div class="line">         callbackExecutor.execute(new Runnable() &#123;</div><div class="line">           @Override public void run() &#123;</div><div class="line">             if (delegate.isCanceled()) &#123;</div><div class="line">               // Emulate OkHttp&apos;s behavior of throwing/delivering an IOException on cancellation.</div><div class="line">               callback.onFailure(ExecutorCallbackCall.this, new IOException(&quot;Canceled&quot;));</div><div class="line">             &#125; else &#123;</div><div class="line">               callback.onResponse(ExecutorCallbackCall.this, response);</div><div class="line">             &#125;</div><div class="line">           &#125;</div><div class="line">         &#125;);</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       @Override public void onFailure(Call&lt;T&gt; call, final Throwable t) &#123;</div><div class="line">         callbackExecutor.execute(new Runnable() &#123;</div><div class="line">           @Override public void run() &#123;</div><div class="line">             callback.onFailure(ExecutorCallbackCall.this, t);</div><div class="line">           &#125;</div><div class="line">         &#125;);</div><div class="line">       &#125;</div><div class="line">     &#125;);</div><div class="line">   &#125;</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>在ExecutorCallbackCall中主要使用代理模式，在该类中持有一个OkHttpCall的实例，网络请求的实际过程都是在OkHttpCall中完成的。</p>
+</blockquote>
+<p>在获取网络响应结果后，在ExecutorCallbackCall中会通过callbackExecutor实现线程切换，这里的callbackExecutor就是Platform.Android中定义的MainThreadExecutor也就是主线程回调执行器。最终我们的回调方法会在主线程中执行。</p>
+<p>这就是为什么Retrofit异步请求回调方法在主线程中被调用的原因。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>关于CallAdapter的讲解就到此为止了。</p>
+<p>其实在Retrofit中支持自定义CallAdapter.Factory实现自定义CallAdapter的功能。比如最流行的RxJava2CallAdapterFactory，通过RxJava2CallAdapterFactory可以实现Rxjava和Retrofit的结合，有兴趣的同学可以自行了解下。</p>
+
+      
+    </div>
+
+    
+      
+      
+
+  <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="http://www.slsan.com">slsan</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="http://www.slsan.com/2018/05/01/Retrofit2源码分析-2-CallAdapter详解/">http://www.slsan.com/2018/05/01/Retrofit2源码分析-2-CallAdapter详解/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span>
+      
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+
+
+
+      
+      
+  <div class="post-reward">
+    <input type="checkbox" name="reward" id="reward" hidden />
+    <label class="reward-button" for="reward">赞赏支持</label>
+    <div class="qr-code">
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/wechat.png" title="wechat">
+        </label>
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/alipay.png" title="alipay">
+        </label>
+      
+    </div>
+  </div>
+
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Retrofit2/">Retrofit2</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2018/05/23/RxJava源码分析/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">RxJava源码分析</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    
+    
+      <a class="next" href="/2018/04/14/Retrofit2源码分析/">
+        <span class="next-text nav-default">Retrofit2源码分析</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:slsanvip@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/slsan" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2018
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">slsan</span>
+  </span>
+</div>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+  
+
+  
+
+
+
+    
+  
+
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.6.0"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.6.0"></script>
+
+  </body>
+</html>
