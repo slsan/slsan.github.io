@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+
+  <meta name="description" content="Android IPC之Binder源码分析"/>
+
+
+
+
+  <meta name="keywords" content="IPC, Binder, slsan" />
+
+
+
+
+
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="slsan">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.6.0" />
+
+
+
+<link rel="canonical" href="http://www.slsan.com/2018/01/21/Android-IPC之Binder源码分析/"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
+
+
+
+  <link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+
+
+
+
+  
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8b33c3eb165360f0c2cdfeac1181257a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.1.1/av-min.js"></script>
+  <script id="leancloud">
+    AV.init({
+      appId: "UxOOHAetmCuIG2FKJWvuqwv0-gzGzoHsz",
+      appKey: "lPRhtunUcctN73xIicP1P1M3"
+    });
+  </script>
+
+
+
+
+
+    <title> Android IPC之Binder源码分析 - slsan </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">slsan</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            首页
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            归档
+          
+        </li>
+      </a>
+    
+      <a href="/tags">
+        <li class="mobile-menu-item">
+          
+          
+            标签
+          
+        </li>
+      </a>
+    
+      <a href="/categories">
+        <li class="mobile-menu-item">
+          
+          
+            分类
+          
+        </li>
+      </a>
+    
+      <a href="/about">
+        <li class="mobile-menu-item">
+          
+          
+            关于
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">slsan</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            
+            
+              标签
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            
+            
+              分类
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            
+            
+              关于
+            
+          </a>
+        </li>
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Android IPC之Binder源码分析
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-01-21
+        </span>
+        
+          <div class="post-category">
+            
+              <a href="/categories/源码/">源码</a>
+            
+              <a href="/categories/源码/Android/">Android</a>
+            
+          </div>
+        
+        
+        <div class="post-visits"
+             data-url="/2018/01/21/Android-IPC之Binder源码分析/"
+             data-title="Android IPC之Binder源码分析">
+            阅读次数
+          </div>
+        
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Binder是什么"><span class="toc-text">Binder是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AIDL中的Binder实现"><span class="toc-text">AIDL中的Binder实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IInterface源码分析"><span class="toc-text">IInterface源码分析</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <h3 id="Binder是什么"><a href="#Binder是什么" class="headerlink" title="Binder是什么"></a>Binder是什么</h3><p>图文详解 Android Binder跨进程通信机制 原理 一文中对Binder机制的原理讲解的比较清楚易懂，这里提供给大家参考。</p>
+<h3 id="AIDL中的Binder实现"><a href="#AIDL中的Binder实现" class="headerlink" title="AIDL中的Binder实现"></a>AIDL中的Binder实现</h3><p>在 Android AIDL实现进程间通信中，我们曾提到要想实现IPC，我们需要通过定义.aidl接口来实现。其实，创建.aidl文件的目的就是让SDK为为我们自动生成.aidl文件对应的java类，该类的主要核心就是Binder。</p>
+<p>现在我们就主要对SDK系统生成的Java类进行分析一下。</p>
+<p>这里是定义的IContactsService.aidl。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">// IContactsService.aidl</div><div class="line">package com.zhangke.aidlserverdemo;</div><div class="line"></div><div class="line">// Declare any non-default types here with import statements</div><div class="line">import com.zhangke.aidlserverdemo.Contacts;</div><div class="line"></div><div class="line">interface IContactsService &#123;</div><div class="line">    /**</div><div class="line">    *保存联系人</div><div class="line">    */</div><div class="line">    int saveContacts(in Contacts contacts);</div><div class="line">    /**</div><div class="line">     *获取联系人列表</div><div class="line">     */</div><div class="line">    List&lt;Contacts&gt; getContactsList();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>下面是SDK自动生成的IContactsService.java类，该类继承自android.os.IInterface接口。</p>
+<p>这里有几个主要的属性和方法:</p>
+<ul>
+<li>DESCTIPTOR：Binder的唯一标识</li>
+<li>asInterface()：返回客户端需要的AIDL接口类型的对象</li>
+<li>asBinder()：IInterface接口定义的方法，返回Binder对象</li>
+<li>onTransact()：IPC的核心方法，也是RPC(远程过程调用)的流程</li>
+<li>Proxy#saveContacts和Proxy#getContactsList：AIDL接口定义的方法，该方法也是提供给客户端调用的方法。<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * SDK生成的java类， 该类继承自android.os.IInterface接口</div><div class="line"> */</div><div class="line">public interface IContactsService extends android.os.IInterface &#123;</div><div class="line">    /**</div><div class="line">     * 该类继承自Binder，并且实现了IContactsService接口，这里有方法的具体实现</div><div class="line">     */</div><div class="line">    public static abstract class Stub extends android.os.Binder implements com.nstv.aidlserverdemo.IContactsService &#123;</div><div class="line">        private static final java.lang.String DESCRIPTOR = &quot;com.nstv.aidlserverdemo.IContactsService&quot;;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 在服务中，一般都是通过创建该类，然后获取对应Binder引用</div><div class="line">         */</div><div class="line">        public Stub() &#123;</div><div class="line">            /**</div><div class="line">             * 将IContactsService接口和Binder关联起来</div><div class="line">             */</div><div class="line">            this.attachInterface(this, DESCRIPTOR);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 将Binder对象转换成与之对应的IContactsService接口对象，</div><div class="line">         * IContactsService对象一般会在客户端被使用</div><div class="line">         */</div><div class="line">        public static com.nstv.aidlserverdemo.IContactsService asInterface(android.os.IBinder obj) &#123;</div><div class="line">            if ((obj == null)) &#123;</div><div class="line">                return null;</div><div class="line">            &#125;</div><div class="line">            /**</div><div class="line">             * obj.queryLocalInterface(DESCRIPTOR)，该方法判断客户端和服务器是否是在同一进程，如果是同一个进程，则返回服务对象本身</div><div class="line">             * 否则，会返回系统封装的Proxy对象</div><div class="line">             */</div><div class="line">            android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);</div><div class="line">            if (((iin != null) &amp;&amp; (iin instanceof com.nstv.aidlserverdemo.IContactsService))) &#123;</div><div class="line">                return ((com.nstv.aidlserverdemo.IContactsService) iin);</div><div class="line">            &#125;</div><div class="line">            return new com.nstv.aidlserverdemo.IContactsService.Stub.Proxy(obj);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 该方法是android.os.IInterface接口中的方法，返回当前Binder对象</div><div class="line">         * 一般在绑定服务的onBind()方法中，通过该方法返回Binder对象</div><div class="line">         */</div><div class="line">        @Override</div><div class="line">        public android.os.IBinder asBinder() &#123;</div><div class="line">            return this;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 核心方法</div><div class="line">         * &lt;p&gt;</div><div class="line">         * 1、该方法运行在服务端的Binder线程池中，当客户端发起请求后，服务端根据code参数确定客户端请求的具体方法</div><div class="line">         */</div><div class="line">        @Override</div><div class="line">        public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel reply, int flags) throws android.os.RemoteException &#123;</div><div class="line">            switch (code) &#123;</div><div class="line">                case INTERFACE_TRANSACTION: &#123;</div><div class="line">                    reply.writeString(DESCRIPTOR);</div><div class="line">                    return true;</div><div class="line">                &#125;</div><div class="line">                case TRANSACTION_saveContacts: &#123;</div><div class="line">                    data.enforceInterface(DESCRIPTOR);</div><div class="line">                    com.nstv.aidlserverdemo.Contacts _arg0;</div><div class="line">                    if ((0 != data.readInt())) &#123;</div><div class="line">                        /**</div><div class="line">                         * 2、通过data参数，获取客户端输入的参数</div><div class="line">                         */</div><div class="line">                        _arg0 = com.nstv.aidlserverdemo.Contacts.CREATOR.createFromParcel(data);</div><div class="line">                    &#125; else &#123;</div><div class="line">                        _arg0 = null;</div><div class="line">                    &#125;</div><div class="line">                    /**</div><div class="line">                     * 3、执行目标方法</div><div class="line">                     */</div><div class="line">                    int _result = this.saveContacts(_arg0);</div><div class="line">                    reply.writeNoException();</div><div class="line">                    /**</div><div class="line">                     * 4、写入返回值</div><div class="line">                     */</div><div class="line">                    reply.writeInt(_result);</div><div class="line"></div><div class="line">                    /**</div><div class="line">                     * 该返回值如果返回false，说明请求调用会失败</div><div class="line">                     */</div><div class="line">                    return true;</div><div class="line">                &#125;</div><div class="line">                case TRANSACTION_getContactsList: &#123;</div><div class="line">                    data.enforceInterface(DESCRIPTOR);</div><div class="line">                    java.util.List&lt;com.nstv.aidlserverdemo.Contacts&gt; _result = this.getContactsList();</div><div class="line">                    reply.writeNoException();</div><div class="line">                    reply.writeTypedList(_result);</div><div class="line">                    return true;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            return super.onTransact(code, data, reply, flags);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * Stub的内部类，在客户端和服务端不是同一个进程时会使用</div><div class="line">         */</div><div class="line">        private static class Proxy implements com.nstv.aidlserverdemo.IContactsService &#123;</div><div class="line">            private android.os.IBinder mRemote;</div><div class="line"></div><div class="line">            Proxy(android.os.IBinder remote) &#123;</div><div class="line">                mRemote = remote;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            @Override</div><div class="line">            public android.os.IBinder asBinder() &#123;</div><div class="line">                return mRemote;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            public java.lang.String getInterfaceDescriptor() &#123;</div><div class="line">                return DESCRIPTOR;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            @Override</div><div class="line">            public int saveContacts(com.nstv.aidlserverdemo.Contacts contacts) throws android.os.RemoteException &#123;</div><div class="line">                // 1、 创建输入参数和输出参数</div><div class="line">                android.os.Parcel _data = android.os.Parcel.obtain();</div><div class="line">                android.os.Parcel _reply = android.os.Parcel.obtain();</div><div class="line">                int _result;</div><div class="line">                try &#123;</div><div class="line">                    _data.writeInterfaceToken(DESCRIPTOR);</div><div class="line">                    if ((contacts != null)) &#123;</div><div class="line">                        // 2、写入输入型参数</div><div class="line">                        _data.writeInt(1);</div><div class="line">                        contacts.writeToParcel(_data, 0);</div><div class="line">                    &#125; else &#123;</div><div class="line">                        _data.writeInt(0);</div><div class="line">                    &#125;</div><div class="line">                    /*</div><div class="line">                     * 3、调用RPC请求，该过程会导致客户端线程挂起，然后服务端的onTransact()方法会被调用，</div><div class="line">                     * 直到RPC完成，客户端线程继续执行</div><div class="line">                     */</div><div class="line">                    mRemote.transact(Stub.TRANSACTION_saveContacts, _data, _reply, 0);</div><div class="line">                    _reply.readException();</div><div class="line">                    // 4、获取RPC的返回结果，最终返回到客户端</div><div class="line">                    _result = _reply.readInt();</div><div class="line">                &#125; finally &#123;</div><div class="line">                    _reply.recycle();</div><div class="line">                    _data.recycle();</div><div class="line">                &#125;</div><div class="line">                return _result;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            /**</div><div class="line">             * 获取联系人列表</div><div class="line">             */</div><div class="line">            @Override</div><div class="line">            public java.util.List&lt;com.nstv.aidlserverdemo.Contacts&gt; getContactsList() throws android.os.RemoteException &#123;</div><div class="line">                android.os.Parcel _data = android.os.Parcel.obtain();</div><div class="line">                android.os.Parcel _reply = android.os.Parcel.obtain();</div><div class="line">                java.util.List&lt;com.nstv.aidlserverdemo.Contacts&gt; _result;</div><div class="line">                try &#123;</div><div class="line">                    _data.writeInterfaceToken(DESCRIPTOR);</div><div class="line">                    mRemote.transact(Stub.TRANSACTION_getContactsList, _data, _reply, 0);</div><div class="line">                    _reply.readException();</div><div class="line">                    _result = _reply.createTypedArrayList(com.nstv.aidlserverdemo.Contacts.CREATOR);</div><div class="line">                &#125; finally &#123;</div><div class="line">                    _reply.recycle();</div><div class="line">                    _data.recycle();</div><div class="line">                &#125;</div><div class="line">                return _result;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 系统生成参数，用于确定请求方法</div><div class="line">         */</div><div class="line">        static final int TRANSACTION_saveContacts = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);</div><div class="line">        static final int TRANSACTION_getContactsList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 保存联系人</div><div class="line">     *</div><div class="line">     * @param contacts</div><div class="line">     * @return</div><div class="line">     * @throws android.os.RemoteException</div><div class="line">     */</div><div class="line">    public int saveContacts(com.nstv.aidlserverdemo.Contacts contacts) throws android.os.RemoteException;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 获取联系人列表</div><div class="line">     */</div><div class="line">    public java.util.List&lt;com.nstv.aidlserverdemo.Contacts&gt; getContactsList() throws android.os.RemoteException;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="IInterface源码分析"><a href="#IInterface源码分析" class="headerlink" title="IInterface源码分析"></a>IInterface源码分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">package android.os;</div><div class="line"></div><div class="line">/**</div><div class="line"> * Binder接口的基类，要想实现Binder必须实现该接口</div><div class="line"> */</div><div class="line">public interface IInterface</div><div class="line">&#123;</div><div class="line">    /**</div><div class="line">     * 查找与接口对应的Binder对象，必须通过该方法才能使Proxy      * 对象返回一个正确的结果</div><div class="line">     */</div><div class="line">    public IBinder asBinder();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+      
+      
+
+  <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="http://www.slsan.com">slsan</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="http://www.slsan.com/2018/01/21/Android-IPC之Binder源码分析/">http://www.slsan.com/2018/01/21/Android-IPC之Binder源码分析/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span>
+      
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+
+
+
+      
+      
+  <div class="post-reward">
+    <input type="checkbox" name="reward" id="reward" hidden />
+    <label class="reward-button" for="reward">赞赏支持</label>
+    <div class="qr-code">
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/wechat.png" title="wechat">
+        </label>
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/alipay.png" title="alipay">
+        </label>
+      
+    </div>
+  </div>
+
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/IPC/">IPC</a>
+            
+              <a href="/tags/Binder/">Binder</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2018/01/29/Android-IPC之Messenger源码分析/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Android IPC之Messenger源码分析</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    
+    
+      <a class="next" href="/2018/01/17/Android-IPC之Messenger/">
+        <span class="next-text nav-default">Android IPC之Messenger</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:slsanvip@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/slsan" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2018
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">slsan</span>
+  </span>
+</div>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+  
+
+  
+
+
+
+    
+  
+
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.6.0"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.6.0"></script>
+
+  </body>
+</html>
