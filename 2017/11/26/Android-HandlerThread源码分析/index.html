@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+
+  <meta name="description" content="Android HandlerThread源码分析"/>
+
+
+
+
+  <meta name="keywords" content="HandlerThread, slsan" />
+
+
+
+
+
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="slsan">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.6.0" />
+
+
+
+<link rel="canonical" href="http://www.slsan.com/2017/11/26/Android-HandlerThread源码分析/"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
+
+
+
+  <link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+
+
+
+
+  
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8b33c3eb165360f0c2cdfeac1181257a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.1.1/av-min.js"></script>
+  <script id="leancloud">
+    AV.init({
+      appId: "UxOOHAetmCuIG2FKJWvuqwv0-gzGzoHsz",
+      appKey: "lPRhtunUcctN73xIicP1P1M3"
+    });
+  </script>
+
+
+
+
+
+    <title> Android HandlerThread源码分析 - slsan </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">slsan</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            首页
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            归档
+          
+        </li>
+      </a>
+    
+      <a href="/tags">
+        <li class="mobile-menu-item">
+          
+          
+            标签
+          
+        </li>
+      </a>
+    
+      <a href="/categories">
+        <li class="mobile-menu-item">
+          
+          
+            分类
+          
+        </li>
+      </a>
+    
+      <a href="/about">
+        <li class="mobile-menu-item">
+          
+          
+            关于
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">slsan</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            
+            
+              标签
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            
+            
+              分类
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            
+            
+              关于
+            
+          </a>
+        </li>
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Android HandlerThread源码分析
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017-11-26
+        </span>
+        
+          <div class="post-category">
+            
+              <a href="/categories/源码/">源码</a>
+            
+              <a href="/categories/源码/Android/">Android</a>
+            
+          </div>
+        
+        
+        <div class="post-visits"
+             data-url="/2017/11/26/Android-HandlerThread源码分析/"
+             data-title="Android HandlerThread源码分析">
+            阅读次数
+          </div>
+        
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#HandlerThread使用场景"><span class="toc-text">HandlerThread使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IntentService"><span class="toc-text">IntentService</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Handler、Thread和HandlerTrhead的关系"><span class="toc-text">Handler、Thread和HandlerTrhead的关系</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <p>HandlerThread继承自Thread，该类实现了一个带有Looper的线程，ThreadHandler中的Looper可以被用于创建一个Handler，这样可以通过在线程中处理handler中的消息队列；<br>当然，HandlerThread的实例必须调用start()方法才可以让处理Handler发送的消息，也就是说HandlerThread必须是运行状态的。</p>
+<p>源码分析<br>在HandlerThread类中，核心代码就是在run()方法中创建一个Looper对象。这样就可以通过handler在子线程中处理消息。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div></pre></td><td class="code"><pre><div class="line">public class HandlerThread extends Thread &#123;</div><div class="line">    int mPriority;</div><div class="line">    int mTid = -1;</div><div class="line">    Looper mLooper;</div><div class="line">    private @Nullable Handler mHandler;</div><div class="line"></div><div class="line">    public HandlerThread(String name) &#123;</div><div class="line">        super(name);</div><div class="line">        mPriority = Process.THREAD_PRIORITY_DEFAULT;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public HandlerThread(String name, int priority) &#123;</div><div class="line">        super(name);</div><div class="line">        mPriority = priority;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 在looper启动之前，可用于初始化一些设置</div><div class="line">     */</div><div class="line">    protected void onLooperPrepared() &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 在线程中创建Looper</div><div class="line">     */</div><div class="line">    @Override</div><div class="line">    public void run() &#123;</div><div class="line">        mTid = Process.myTid();</div><div class="line">        // 1、创建Looper，该looper对象实际被存储在ThreadLocal对象中</div><div class="line">        Looper.prepare();</div><div class="line">        synchronized (this) &#123;</div><div class="line">            // 2、获取Looper对象，通过ThreadLocal.get()获取Looper对象</div><div class="line">            mLooper = Looper.myLooper();</div><div class="line">            notifyAll();</div><div class="line">        &#125;</div><div class="line">        Process.setThreadPriority(mPriority);</div><div class="line">        onLooperPrepared();</div><div class="line">        // 3、启动looper消息循环，在消息队列中获取消息，该方法是一个阻塞的方法</div><div class="line">        Looper.loop();</div><div class="line">        mTid = -1;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 获取该线程中的Looper对象</div><div class="line">     */</div><div class="line">    public Looper getLooper() &#123;</div><div class="line">        if (!isAlive()) &#123;</div><div class="line">            return null;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        // 当looper被创建后该方法才返回looper对象</div><div class="line">        synchronized (this) &#123;</div><div class="line">            while (isAlive() &amp;&amp; mLooper == null) &#123;</div><div class="line">                try &#123;</div><div class="line">                    wait();</div><div class="line">                &#125; catch (InterruptedException e) &#123;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        return mLooper;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 该方法可以返回一个带有该Looper的Handler的对象，但是该方法被隐藏</div><div class="line">     */</div><div class="line">    @NonNull</div><div class="line">    public Handler getThreadHandler() &#123;</div><div class="line">        if (mHandler == null) &#123;</div><div class="line">            mHandler = new Handler(getLooper());</div><div class="line">        &#125;</div><div class="line">        return mHandler;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 退出handlerThread的looper循环</div><div class="line">     *</div><div class="line">     * 通过该方法退出looper循环，将会移除消息队列中的所有未处理消息</div><div class="line">     */</div><div class="line">    public boolean quit() &#123;</div><div class="line">        Looper looper = getLooper();</div><div class="line">        if (looper != null) &#123;</div><div class="line">            looper.quit();</div><div class="line">            return true;</div><div class="line">        &#125;</div><div class="line">        return false;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    /**</div><div class="line">     * 退出handlerThread的looper循环</div><div class="line">     *</div><div class="line">     * 通过该方法退出looper循环，将会清楚所有pending的消息，但是对于已经存在于消息队列中的消息，handler将会继续处理完成后才会退出循环。</div><div class="line">     */</div><div class="line">    public boolean quitSafely() &#123;</div><div class="line">        Looper looper = getLooper();</div><div class="line">        if (looper != null) &#123;</div><div class="line">            looper.quitSafely();</div><div class="line">            return true;</div><div class="line">        &#125;</div><div class="line">        return false;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 返回线程id</div><div class="line">     */</div><div class="line">    public int getThreadId() &#123;</div><div class="line">        return mTid;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>通过上面的代码我们可以知道，一旦HandlerThread调用start()方法启动后，Looper对象会一直阻塞等待处理消息队列中的消息，直到你线程调用quit()或quitSafely()方法，looper循环器才会停止运行，整个线程才会停止。</p>
+<h3 id="HandlerThread使用场景"><a href="#HandlerThread使用场景" class="headerlink" title="HandlerThread使用场景"></a>HandlerThread使用场景</h3><p>通常情况下，都是通过HandlerThread在子线程中执行耗时的操作。同时，因为在HandlerThread中是通过Looper维护的消息队列，所以线程在处理任务时时同步的，所以就不需要考虑并发的问题。</p>
+<p>代码示例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">HandlerThread handlerThread = new HandlerThread(&quot;WorkThread&quot;);</div><div class="line">handlerThread.start();</div><div class="line"></div><div class="line">Handler handler = new Handler(handlerThread.getLooper()) &#123;</div><div class="line">    @Override</div><div class="line">    public void handleMessage(Message msg) &#123;</div><div class="line">        super.handleMessage(msg);</div><div class="line">        // 这里可以执行耗时操作,因为在子线程中</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h3 id="IntentService"><a href="#IntentService" class="headerlink" title="IntentService"></a>IntentService</h3><p>在android源码中，有一个IntentService的服务类，该类继承自Service，主要功能就是让Service在子线程中处理任务，在该类中就是通过HandlerThread实现的。</p>
+<p>关于IntentService的介绍，请看 Android IntentService源码分析</p>
+<h3 id="Handler、Thread和HandlerTrhead的关系"><a href="#Handler、Thread和HandlerTrhead的关系" class="headerlink" title="Handler、Thread和HandlerTrhead的关系"></a>Handler、Thread和HandlerTrhead的关系</h3><p>一句简单的话总结这三者的关系就是：<br>HandlerThread就是一个在Thread中实现handler的机制的一个具体实现。</p>
+<p>在这里明确一个概念，如果想在子线程中创建Handler，那么必须在handler初始化前为该线程创建一个Looper对象，否则会抛出一个运行时异常：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">java.lang.RuntimeException: Can&apos;t create handler inside thread that has not called Looper.prepare()</div><div class="line">                                                       at android.os.Handler.&lt;init&gt;(Handler.java:200)</div><div class="line">                                                       at android.os.Handler.&lt;init&gt;(Handler.java:114)</div><div class="line">                                                       at com.nstv.componentdemo.MainActivity$1.run(MainActivity.java:30)</div></pre></td></tr></table></figure></p>
+<p>通常情况下，我们通过下面的代码为线程创建Looper：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">class LooperThread extends Thread &#123;</div><div class="line">      public Handler mHandler;</div><div class="line"></div><div class="line">      public void run() &#123;</div><div class="line"></div><div class="line">          Looper.prepare();</div><div class="line"></div><div class="line">          mHandler = new Handler() &#123;</div><div class="line">              public void handleMessage(Message msg) &#123;</div><div class="line">                  // process incoming messages here</div><div class="line">              &#125;</div><div class="line">          &#125;;</div><div class="line"></div><div class="line">          Looper.loop();</div><div class="line">      &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>关于HandlerThread的介绍就到这里了。</p>
+
+      
+    </div>
+
+    
+      
+      
+
+  <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="http://www.slsan.com">slsan</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="http://www.slsan.com/2017/11/26/Android-HandlerThread源码分析/">http://www.slsan.com/2017/11/26/Android-HandlerThread源码分析/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span>
+      
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+
+
+
+      
+      
+  <div class="post-reward">
+    <input type="checkbox" name="reward" id="reward" hidden />
+    <label class="reward-button" for="reward">赞赏支持</label>
+    <div class="qr-code">
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/wechat.png" title="wechat">
+        </label>
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/alipay.png" title="alipay">
+        </label>
+      
+    </div>
+  </div>
+
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/HandlerThread/">HandlerThread</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2017/11/29/Android-IntentService-源码分析/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Android IntentService 源码分析</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    
+    
+      <a class="next" href="/2017/11/23/Android-Handler消息机制源码分析/">
+        <span class="next-text nav-default">Android Handler消息机制源码分析</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:slsanvip@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/slsan" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2018
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">slsan</span>
+  </span>
+</div>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+  
+
+  
+
+
+
+    
+  
+
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.6.0"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.6.0"></script>
+
+  </body>
+</html>
