@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+
+  <meta name="description" content="Java ThreadLocal源码分析"/>
+
+
+
+
+  <meta name="keywords" content="ThreadLocal, slsan" />
+
+
+
+
+
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="slsan">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.6.0" />
+
+
+
+<link rel="canonical" href="http://www.slsan.com/2018/11/23/Java-ThreadLocal源码分析/"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
+
+
+
+  <link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+
+
+
+
+  
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8b33c3eb165360f0c2cdfeac1181257a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.1.1/av-min.js"></script>
+  <script id="leancloud">
+    AV.init({
+      appId: "UxOOHAetmCuIG2FKJWvuqwv0-gzGzoHsz",
+      appKey: "lPRhtunUcctN73xIicP1P1M3"
+    });
+  </script>
+
+
+
+
+
+    <title> Java ThreadLocal源码分析 - slsan </title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">slsan</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+      <a href="/">
+        <li class="mobile-menu-item">
+          
+          
+            首页
+          
+        </li>
+      </a>
+    
+      <a href="/archives/">
+        <li class="mobile-menu-item">
+          
+          
+            归档
+          
+        </li>
+      </a>
+    
+      <a href="/tags">
+        <li class="mobile-menu-item">
+          
+          
+            标签
+          
+        </li>
+      </a>
+    
+      <a href="/categories">
+        <li class="mobile-menu-item">
+          
+          
+            分类
+          
+        </li>
+      </a>
+    
+      <a href="/about">
+        <li class="mobile-menu-item">
+          
+          
+            关于
+          
+        </li>
+      </a>
+    
+  </ul>
+</nav>
+
+    <div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">slsan</a>
+</div>
+
+<nav class="site-navbar">
+  
+    <ul id="menu" class="menu">
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/">
+            
+            
+              首页
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            
+            
+              归档
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            
+            
+              标签
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            
+            
+              分类
+            
+          </a>
+        </li>
+      
+        <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            
+            
+              关于
+            
+          </a>
+        </li>
+      
+    </ul>
+  
+</nav>
+
+      </header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content">
+            
+  
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Java ThreadLocal源码分析
+        
+      </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-11-23
+        </span>
+        
+          <div class="post-category">
+            
+              <a href="/categories/源码/">源码</a>
+            
+              <a href="/categories/源码/Java/">Java</a>
+            
+          </div>
+        
+        
+        <div class="post-visits"
+             data-url="/2018/11/23/Java-ThreadLocal源码分析/"
+             data-title="Java ThreadLocal源码分析">
+            阅读次数
+          </div>
+        
+      </div>
+    </header>
+
+    
+    
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal实例演示"><span class="toc-text">ThreadLocal实例演示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal源码分析"><span class="toc-text">ThreadLocal源码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal内存泄漏问题"><span class="toc-text">ThreadLocal内存泄漏问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为什么使用弱引用"><span class="toc-text">为什么使用弱引用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal-最佳实践"><span class="toc-text">ThreadLocal 最佳实践</span></a></li></ol>
+    </div>
+  </div>
+
+
+    <div class="post-content">
+      
+        <p>ThreadLocal，可以理解为线程本地变量。通过ThreadLocal保存的值在同一线程中是数据共享的，而在不同线程中是互斥的（所谓互斥这里可以理解为同一个ThreadLocal变量在不同线程中值是不同的，在一个线程中改变ThreadLocal的值也不会影响另外一个线程中的值）。</p>
+<h3 id="ThreadLocal实例演示"><a href="#ThreadLocal实例演示" class="headerlink" title="ThreadLocal实例演示"></a>ThreadLocal实例演示</h3><p>首先，声明一个ThreadLocal的变量，然后在UI线程，子线程1中设置对应的值，在子线程2中不设置值。要想给ThreadLocal变脸设置值，只要调用set方法即可，并通过get方法可以获取对应的值。下面通过一个简单demo演示下ThreadLocal的用法。</p>
+<p>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">import android.app.Activity;</div><div class="line">import android.os.Bundle;</div><div class="line"></div><div class="line">public class MainActivity extends Activity &#123;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</div><div class="line">        super.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line"></div><div class="line">        new Thread() &#123;</div><div class="line">            @Override</div><div class="line">            public void run() &#123;</div><div class="line">                // 1、在子线程1中设置值</div><div class="line">                mThreadLocalStr.set(&quot;thread1&quot;);</div><div class="line">                System.out.println(Thread.currentThread() + &quot; &quot; + mThreadLocalStr.get());</div><div class="line">            &#125;;</div><div class="line">        &#125;.start();</div><div class="line"></div><div class="line">        new Thread() &#123;</div><div class="line">            @Override</div><div class="line">            public void run() &#123;</div><div class="line">                System.out.println(Thread.currentThread() + &quot; &quot; + mThreadLocalStr.get());</div><div class="line">            &#125;;</div><div class="line">        &#125;.start();</div><div class="line"></div><div class="line">        // 3、在主线程中设置值</div><div class="line">        mThreadLocalStr.set(&quot;main&quot;);</div><div class="line">        System.out.println(Thread.currentThread() + &quot; &quot; + mThreadLocalStr.get());</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 申明一个字符串型ThreadLocal变量</div><div class="line">     */</div><div class="line">    public ThreadLocal&lt;String&gt; mThreadLocalStr = new ThreadLocal&lt;String&gt;();</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>日志<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">02-15 20:24:00.885: I/System.out(2225): Thread[main,5,main] main</div><div class="line">02-15 20:24:00.885: I/System.out(2225): Thread[Thread-143,5,main] thread1</div><div class="line">02-15 20:24:00.886: I/System.out(2225): Thread[Thread-144,5,main] null</div></pre></td></tr></table></figure></p>
+<p>通过日志打印结果我们可知：在UI线程中和子线程中分别打印了线程中的值，而在Thread2中因为没有设置ThreadLocal，所以为null，这也印证了上面所提到的ThreadLocal在不同线程中值是独立的。</p>
+<h3 id="ThreadLocal源码分析"><a href="#ThreadLocal源码分析" class="headerlink" title="ThreadLocal源码分析"></a>ThreadLocal源码分析</h3><p>ThreadLocal方法列表：</p>
+<ul>
+<li>set()：将此线程局部变量的当前线程副本中的值设置为指定值</li>
+<li>get(): 返回此线程局部变量的当前线程副本中的值，如果没有设置值就会返回initialValue()方法中指定的值</li>
+<li>initialValue():返回此线程局部变量的当前线程的“初始值”</li>
+<li>remove(): 移除此线程局部变量当前线程的值<br>通过ThreadLocal源码可知，ThreadLocal是一个泛型类，通过泛型方法set可以设置ThreadLocal的值，通过get可以获取ThreadLocal的值。</li>
+</ul>
+<p>在ThreadLocal中还定义了一个内部静态类Values，该类是存储ThreadLocal变量的具体实现，在该类中定义了一个数组，就是用于存储线程以及ThreadLocal变量。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div><div class="line">288</div><div class="line">289</div><div class="line">290</div><div class="line">291</div><div class="line">292</div><div class="line">293</div><div class="line">294</div><div class="line">295</div><div class="line">296</div></pre></td><td class="code"><pre><div class="line">public class ThreadLocal&lt;T&gt; &#123;</div><div class="line"></div><div class="line"></div><div class="line">    public ThreadLocal() &#123;&#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     *</div><div class="line">     * 获取当前线程的ThreadLocal的值</div><div class="line">     */</div><div class="line">    @SuppressWarnings(&quot;unchecked&quot;)</div><div class="line">    public T get() &#123;</div><div class="line"></div><div class="line">        // 获取当前线程的values对象</div><div class="line">        Thread currentThread = Thread.currentThread();</div><div class="line">        Values values = values(currentThread);</div><div class="line"></div><div class="line">        if (values != null) &#123;</div><div class="line">            Object[] table = values.table;</div><div class="line"></div><div class="line">            // 计算存储key所在的index，然后获取key对应的值，在存储的时候也是通过hash的方式计算index</div><div class="line">            int index = hash &amp; values.mask;</div><div class="line">            if (this.reference == table[index]) &#123;</div><div class="line">                return (T) table[index + 1];</div><div class="line">            &#125;</div><div class="line">        &#125; else &#123;</div><div class="line">            // 如果没有存储，那么会初始化current.localValues = new Values();</div><div class="line">            values = initializeValues(currentThread);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        // 如果没有设置值，会返回initialValue()中的值作为默认值</div><div class="line">        return (T) values.getAfterMiss(this);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     *  设置默认值</div><div class="line">     */</div><div class="line">    protected T initialValue() &#123;</div><div class="line">        return null;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     *  设置当前线程的ThreadLocal的值</div><div class="line">     */</div><div class="line">    public void set(T value) &#123;</div><div class="line"></div><div class="line">        Thread currentThread = Thread.currentThread();</div><div class="line">        Values values = values(currentThread);</div><div class="line"></div><div class="line">        if (values == null) &#123;</div><div class="line">            values = initializeValues(currentThread);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        values.put(this, value);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     *  移除线程本地变脸</div><div class="line">     */</div><div class="line">    public void remove() &#123;</div><div class="line">        Thread currentThread = Thread.currentThread();</div><div class="line">        Values values = values(currentThread);</div><div class="line">        if (values != null) &#123;</div><div class="line">            values.remove(this);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 初始化</div><div class="line">     */</div><div class="line">    Values initializeValues(Thread current) &#123;</div><div class="line">        return current.localValues = new Values();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">     /**</div><div class="line">     * 在Thread类中定义了一个Values对象localValues，用于存储本线程所有的ThreadLocal变量</div><div class="line">     */</div><div class="line">    Values values(Thread current) &#123;</div><div class="line">        return current.localValues;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private final Reference&lt;ThreadLocal&lt;T&gt;&gt; reference</div><div class="line">            = new WeakReference&lt;ThreadLocal&lt;T&gt;&gt;(this);</div><div class="line"></div><div class="line">    private static AtomicInteger hashCounter = new AtomicInteger(0);</div><div class="line"></div><div class="line"></div><div class="line">    private final int hash = hashCounter.getAndAdd(0x61c88647 * 2);</div><div class="line"></div><div class="line">    /**</div><div class="line">     * </div><div class="line">     * 内部类，实现存储ThreadLocal的key-value的数据结构</div><div class="line">     * 该类通过数组实现，key和value分别被存放在index、index+1的位置</div><div class="line">     * </div><div class="line">     * 因为一个Thread可能有多个不同的ThreadLocal变量，所在在计算key的index时，通过hash运算保证唯一</div><div class="line">     */</div><div class="line">    static class Values &#123;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 将key-value存放在</div><div class="line">         */</div><div class="line">        void put(ThreadLocal&lt;?&gt; key, Object value) &#123;</div><div class="line">            cleanUp();</div><div class="line"></div><div class="line">            // Keep track of first tombstone. That&apos;s where we want to go back</div><div class="line">            // and add an entry if necessary.</div><div class="line">            int firstTombstone = -1;</div><div class="line"></div><div class="line">            for (int index = key.hash &amp; mask;; index = next(index)) &#123;</div><div class="line">                Object k = table[index];</div><div class="line"></div><div class="line">                // 新值替换旧值</div><div class="line">                if (k == key.reference) &#123;</div><div class="line">                    // Replace existing entry.</div><div class="line">                    table[index + 1] = value;</div><div class="line">                    return;</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                // 初始化存储</div><div class="line">                if (k == null) &#123;</div><div class="line">                    if (firstTombstone == -1) &#123;</div><div class="line">                        // Fill in null slot.</div><div class="line">                        table[index] = key.reference;</div><div class="line">                        table[index + 1] = value;</div><div class="line">                        size++;</div><div class="line">                        return;</div><div class="line">                    &#125;</div><div class="line"></div><div class="line">                    // Go back and replace first tombstone.</div><div class="line">                    table[firstTombstone] = key.reference;</div><div class="line">                    table[firstTombstone + 1] = value;</div><div class="line">                    tombstones--;</div><div class="line"></div><div class="line">                    // 这个size表示线程中存储的本地变量的数量</div><div class="line">                    size++;</div><div class="line">                    return;</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                // Remember first tombstone.</div><div class="line">                if (firstTombstone == -1 &amp;&amp; k == TOMBSTONE) &#123;</div><div class="line">                    firstTombstone = index;</div><div class="line">                &#125;</div><div class="line"></div><div class="line"></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /**</div><div class="line">         *  如果没有设置线程的ThreadLocal值，那么返回默认值并且存储key-value值</div><div class="line">         */</div><div class="line">        Object getAfterMiss(ThreadLocal&lt;?&gt; key) &#123;</div><div class="line">            Object[] table = this.table;</div><div class="line">            int index = key.hash &amp; mask;</div><div class="line"></div><div class="line">            if (table[index] == null) &#123;</div><div class="line"></div><div class="line">                // 获取默认值</div><div class="line">                Object value = key.initialValue();</div><div class="line"></div><div class="line"></div><div class="line">                if (this.table == table &amp;&amp; table[index] == null) &#123;</div><div class="line">                    // 存储默认值</div><div class="line">                    table[index] = key.reference;</div><div class="line">                    table[index + 1] = value;</div><div class="line">                    size++;</div><div class="line"></div><div class="line">                    cleanUp();</div><div class="line">                    return value;</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                // The table changed during initialValue().</div><div class="line">                put(key, value);</div><div class="line">                return value;</div><div class="line">            &#125;</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">                Object reference = table[index];</div><div class="line">                if (reference == key.reference) &#123;</div><div class="line">                    return table[index + 1];</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                // If no entry was found...</div><div class="line">                if (reference == null) &#123;</div><div class="line">                    Object value = key.initialValue();</div><div class="line"></div><div class="line">                    // If the table is still the same...</div><div class="line">                    if (this.table == table) &#123;</div><div class="line">                        // If we passed a tombstone and that slot still</div><div class="line">                        // contains a tombstone...</div><div class="line">                        if (firstTombstone &gt; -1</div><div class="line">                                &amp;&amp; table[firstTombstone] == TOMBSTONE) &#123;</div><div class="line">                            table[firstTombstone] = key.reference;</div><div class="line">                            table[firstTombstone + 1] = value;</div><div class="line">                            tombstones--;</div><div class="line">                            size++;</div><div class="line"></div><div class="line">                            // No need to clean up here. We aren&apos;t filling</div><div class="line">                            // in a null slot.</div><div class="line">                            return value;</div><div class="line">                        &#125;</div><div class="line"></div><div class="line">                        // If this slot is still empty...</div><div class="line">                        if (table[index] == null) &#123;</div><div class="line">                            table[index] = key.reference;</div><div class="line">                            table[index + 1] = value;</div><div class="line">                            size++;</div><div class="line"></div><div class="line">                            cleanUp();</div><div class="line">                            return value;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line"></div><div class="line">                    // The table changed during initialValue().</div><div class="line">                    put(key, value);</div><div class="line">                    return value;</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                if (firstTombstone == -1 &amp;&amp; reference == TOMBSTONE) &#123;</div><div class="line">                    // Keep track of this tombstone so we can overwrite it.</div><div class="line">                    firstTombstone = index;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 移除key-value</div><div class="line">         */</div><div class="line">        void remove(ThreadLocal&lt;?&gt; key) &#123;</div><div class="line">            cleanUp();</div><div class="line"></div><div class="line">            for (int index = key.hash &amp; mask;; index = next(index)) &#123;</div><div class="line">                Object reference = table[index];</div><div class="line"></div><div class="line">                if (reference == key.reference) &#123;</div><div class="line">                    // Success!</div><div class="line">                    table[index] = TOMBSTONE;</div><div class="line">                    table[index + 1] = null;</div><div class="line">                    tombstones++;</div><div class="line">                    size--;</div><div class="line">                    return;</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                if (reference == null) &#123;</div><div class="line">                    // No entry found.</div><div class="line">                    return;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /**</div><div class="line">         * 清楚已经被GC清除的ThreadLocal变量</div><div class="line">         */</div><div class="line">        private void cleanUp() &#123;</div><div class="line">            if (rehash()) &#123;</div><div class="line">                // If we rehashed, we needn&apos;t clean up (clean up happens as</div><div class="line">                // a side effect).</div><div class="line">                return;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            if (size == 0) &#123;</div><div class="line">                // No live entries == nothing to clean.</div><div class="line">                return;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            // Clean log(table.length) entries picking up where we left off</div><div class="line">            // last time.</div><div class="line">            int index = clean;</div><div class="line">            Object[] table = this.table;</div><div class="line">            for (int counter = table.length; counter &gt; 0; counter &gt;&gt;= 1,</div><div class="line">                    index = next(index)) &#123;</div><div class="line">                Object k = table[index];</div><div class="line"></div><div class="line">                if (k == TOMBSTONE || k == null) &#123;</div><div class="line">                    continue; // on to next entry</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                // The table can only contain null, tombstones and references.</div><div class="line">                @SuppressWarnings(&quot;unchecked&quot;)</div><div class="line">                Reference&lt;ThreadLocal&lt;?&gt;&gt; reference</div><div class="line">                        = (Reference&lt;ThreadLocal&lt;?&gt;&gt;) k;</div><div class="line">                if (reference.get() == null) &#123;</div><div class="line">                    // This thread local was reclaimed by the garbage collector.</div><div class="line">                    table[index] = TOMBSTONE;</div><div class="line">                    table[index + 1] = null;</div><div class="line">                    tombstones++;</div><div class="line">                    size--;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            // Point cursor to next index.</div><div class="line">            clean = index;</div><div class="line">        &#125;</div><div class="line"></div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="ThreadLocal内存泄漏问题"><a href="#ThreadLocal内存泄漏问题" class="headerlink" title="ThreadLocal内存泄漏问题"></a>ThreadLocal内存泄漏问题</h3><p>ThreadLocalMap使用ThreadLocal的弱引用作为key，如果一个ThreadLocal没有外部强引用来引用它，那么系统 GC 的时候，这个ThreadLocal势必会被回收，这样一来，ThreadLocalMap中就会出现key为null的Entry，就没有办法访问这些key为null的Entry的value，如果当前线程再迟迟不结束的话，这些key为null的Entry的value就会一直存在一条强引用链：Thread Ref -&gt; Thread -&gt; ThreaLocalMap -&gt; Entry -&gt; value永远无法回收，造成内存泄漏。</p>
+<p>其实，ThreadLocalMap的设计中已经考虑到这种情况，也加上了一些防护措施：在ThreadLocal的get(),set(),remove()的时候都会清除线程ThreadLocalMap里所有key为null的value。</p>
+<p>但是这些被动的预防措施并不能保证不会内存泄漏：</p>
+<p>使用线程池的时候，这个线程执行任务结束，ThreadLocal对象被回收了，线程放回线程池中不销毁，这个线程一直不被使用，导致内存泄漏。<br>分配使用了ThreadLocal又不再调用get(),set(),remove()方法，那么这个期间就会发生内存泄漏。</p>
+<h3 id="为什么使用弱引用"><a href="#为什么使用弱引用" class="headerlink" title="为什么使用弱引用"></a>为什么使用弱引用</h3><p>从表面上看内存泄漏的根源在于使用了弱引用。网上的文章大多着重分析为什么会内存泄漏，但是另一个问题也同样值得思考：为什么使用弱引用？为什么不用强引用？</p>
+<p>我们先来看看官方文档的说法：</p>
+<blockquote>
+<p>To help deal with very large and long-lived usages, the hash table entries use WeakReferences for keys.<br>为了应对非常大和长时间的用途，哈希表使用弱引用的 key。</p>
+</blockquote>
+<p>下面我们分两种情况讨论：</p>
+<p>key 使用强引用：引用的ThreadLocal的对象被回收了，但是ThreadLocalMap还持有ThreadLocal的强引用，如果没有手动删除，ThreadLocal不会被回收，导致Entry内存泄漏。<br>key 使用弱引用：引用的ThreadLocal的对象被回收了，由于ThreadLocalMap持有ThreadLocal的弱引用，即使没有手动删除，ThreadLocal也会被回收。value在下一次ThreadLocalMap调用set,get的时候会被清除。<br>比较两种情况，我们可以发现：由于ThreadLocalMap的生命周期跟Thread一样长，如果都没有手动删除对应key，都会导致内存泄漏，但是使用弱引用可以多一层保障：弱引用ThreadLocal不会内存泄漏，对应的value在下一次ThreadLocalMap调用set,get,remove的时候会被清除。</p>
+<p>因此，ThreadLocal内存泄漏的根源是：由于ThreadLocalMap的生命周期跟Thread一样长，如果没有手动删除对应key就会导致内存泄漏，而不是因为弱引用。</p>
+<h3 id="ThreadLocal-最佳实践"><a href="#ThreadLocal-最佳实践" class="headerlink" title="ThreadLocal 最佳实践"></a>ThreadLocal 最佳实践</h3><p>综合上面的分析，我们可以理解ThreadLocal内存泄漏的前因后果，那么怎么避免内存泄漏呢？</p>
+<p>每次使用完ThreadLocal，都调用它的remove()方法，清除数据。<br>在使用线程池的情况下，没有及时清理ThreadLocal，不仅是内存泄漏的问题，更严重的是可能导致业务逻辑出现问题。所以，使用ThreadLocal就跟加锁完要解锁一样，用完就清理。</p>
+
+      
+    </div>
+
+    
+      
+      
+
+  <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="http://www.slsan.com">slsan</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="http://www.slsan.com/2018/11/23/Java-ThreadLocal源码分析/">http://www.slsan.com/2018/11/23/Java-ThreadLocal源码分析/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span>
+      
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+
+
+
+      
+      
+  <div class="post-reward">
+    <input type="checkbox" name="reward" id="reward" hidden />
+    <label class="reward-button" for="reward">赞赏支持</label>
+    <div class="qr-code">
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/wechat.png" title="wechat">
+        </label>
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/alipay.png" title="alipay">
+        </label>
+      
+    </div>
+  </div>
+
+    
+
+    
+      <footer class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/ThreadLocal/">ThreadLocal</a>
+            
+          </div>
+        
+        
+        
+  <nav class="post-nav">
+    
+    
+      <a class="next" href="/2018/11/23/Android-Handler消息机制源码分析/">
+        <span class="next-text nav-default">Android Handler消息机制源码分析</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+      </footer>
+    
+
+  </article>
+
+
+          </div>
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+
+  <div class="social-links">
+    
+      
+        
+          <a href="mailto:slsanvip@gmail.com" class="iconfont icon-email" title="email"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <a href="https://github.com/slsan" class="iconfont icon-github" title="github"></a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+  </div>
+
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">
+    
+    &copy; 
+     
+      2015 - 
+    
+    2018
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">slsan</span>
+  </span>
+</div>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+
+    
+  
+  
+
+  
+
+
+
+    
+  
+
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  
+
+  
+    <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  
+
+
+    <script type="text/javascript" src="/js/src/even.js?v=2.6.0"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=2.6.0"></script>
+
+  </body>
+</html>
