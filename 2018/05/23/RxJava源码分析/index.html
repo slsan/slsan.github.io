@@ -17,8 +17,12 @@
 
 
 
+  <meta name="description" content="RxJava源码分析"/>
 
 
+
+
+  <meta name="keywords" content="RxJava, slsan" />
 
 
 
@@ -38,7 +42,7 @@
 
 
 
-<link rel="canonical" href="http://www.slsan.com/"/>
+<link rel="canonical" href="http://www.slsan.com/2018/05/23/RxJava源码分析/"/>
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
@@ -95,7 +99,7 @@
 
 
 
-    <title> slsan </title>
+    <title> RxJava源码分析 - slsan </title>
   </head>
 
   <body><div id="mobile-navbar" class="mobile-navbar">
@@ -224,14 +228,12 @@
         <div class="content-wrapper">
           <div id="content" class="content">
             
-  <section id="posts" class="posts">
-    
-      
+  
   <article class="post">
     <header class="post-header">
       <h1 class="post-title">
         
-          <a class="post-link" href="/2018/05/23/RxJava源码分析/">RxJava源码分析</a>
+          RxJava源码分析
         
       </h1>
 
@@ -258,14 +260,17 @@
 
     
     
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本使用"><span class="toc-text">基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本订阅"><span class="toc-text">基本订阅</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#源码分析"><span class="toc-text">源码分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#subscribe方法"><span class="toc-text">subscribe方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
 
     <div class="post-content">
       
-        
-        
-
-        
-          <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>虽然RxJava2也发布了很长时间了，但是对于分析RxJava的工作原理，RxJava1的源码相对于RxJava2相对而言会容易很多（原因想必大家都很清楚，其实是因为RxJava2我也没有怎么用过，哈哈），所以对RxJava的源码分析依然选择使用RxJava1。</p>
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>虽然RxJava2也发布了很长时间了，但是对于分析RxJava的工作原理，RxJava1的源码相对于RxJava2相对而言会容易很多（原因想必大家都很清楚，其实是因为RxJava2我也没有怎么用过，哈哈），所以对RxJava的源码分析依然选择使用RxJava1。</p>
 <p>在本次RxJava的源码分析中，只针对开发中常用的也是必须掌握的操作符做具体分析，主要包括三方面：</p>
 <ul>
 <li>基本使用</li>
@@ -292,82 +297,87 @@
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这样关于RxJava的基本使用的源码分析就到这里了，这里面的核心流程也就是Subscriber.subscribe()方法，该方法是实现响应式编程的核心方法。</p>
 <p>当然，在基本使用中对于Observerable.OnSubscribe类的作用并没有很突出，在下一章节中将主要讲解RxJava变换的原理。在变换的流程中就是要对Subscriber.subscribe()和Observerable.OnSubscribe两个方法的方法</p>
 
-        
       
     </div>
 
     
-
-    
-
-  </article>
-
-    
       
-  <article class="post">
-    <header class="post-header">
-      <h1 class="post-title">
-        
-          <a class="post-link" href="/2017/09/18/hello-world/">Hello World</a>
-        
-      </h1>
+      
 
-      <div class="post-meta">
-        <span class="post-time">
-          2017-09-18
-        </span>
+  <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="http://www.slsan.com">slsan</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="http://www.slsan.com/2018/05/23/RxJava源码分析/">http://www.slsan.com/2018/05/23/RxJava源码分析/</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span>
+      
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+
+
+
+      
+      
+  <div class="post-reward">
+    <input type="checkbox" name="reward" id="reward" hidden />
+    <label class="reward-button" for="reward">Reward</label>
+    <div class="qr-code">
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/wechat.png" title="wechat">
+        </label>
+      
+      
+        <label class="qr-code-image" for="reward">
+          <img class="image" src="/image/reward/alipay.png" title="alipay">
+        </label>
+      
+    </div>
+  </div>
+
+    
+
+    
+      <footer class="post-footer">
         
-        
-        <div class="post-visits"
-             data-url="/2017/09/18/hello-world/"
-             data-title="Hello World">
-            阅读次数
+          <div class="post-tags">
+            
+              <a href="/tags/RxJava/">RxJava</a>
+            
           </div>
         
-      </div>
-    </header>
-
+        
+        
+  <nav class="post-nav">
     
     
-
-    <div class="post-content">
-      
-        
-        
-
-        
-          <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
-
-        
-      
-    </div>
-
+      <a class="next" href="/2017/09/18/hello-world/">
+        <span class="next-text nav-default">Hello World</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
     
+  </nav>
 
+      </footer>
     
 
   </article>
-
-    
-  </section>
-
-  
-  <nav class="pagination">
-    
-    
-  </nav>
 
 
           </div>
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
       </main>
@@ -448,6 +458,11 @@
     </div>
 
     
+  
+  
+
+  
+
 
 
     
